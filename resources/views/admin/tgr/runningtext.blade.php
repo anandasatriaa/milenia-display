@@ -50,31 +50,54 @@
             </div>
             <div class="card-body">
                 <div id="runningtextList" class="sortable-list">
-                    @foreach ($keterlambatan as $absen)
-                        <div class="runningtext-item d-flex bg-body align-items-center justify-content-between">
-                            <div class="d-flex align-items-center gap-3">
-                                <span class="handle"><i class="bx bx-menu"></i></span>
-                                <div class="d-flex flex-column">
-                                    <!-- Tanggal dalam Bahasa Indonesia dan Ukuran Teks yang Lebih Kecil -->
+                    <div class="runningtext-item d-flex bg-body align-items-center justify-content-between">
+                        <div class="d-flex align-items-center gap-3">
+                            <span class="handle"><i class="bx bx-menu"></i></span>
+                            <div class="d-flex flex-column">
+                                @if (count($keterlambatan) > 0)
                                     <span class="fw-bold">
                                         Keterlambatan
-                                        {{ \Carbon\Carbon::parse($absen->tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
-                                    </span> <!-- Menggunakan locale 'id' untuk Bahasa Indonesia -->
-                                    <span class="text-muted">{{ $absen->Nama }} :
-                                        {{ \Carbon\Carbon::parse($absen->jam)->format('H:i') }}</span>
-                                    <span class="status-badge badge rounded-pill bg-success badge-sm">Active</span>
-                                </div>
-                            </div>
-                            <div class="d-flex gap-2">
-                                <button class="btn btn-sm toggle-status btn-danger" data-id="{{ $absen->pin }}">
-                                    <i class="bx bx-power-off"></i>
-                                </button>
-                                <button class="btn btn-sm btn-dark" id="refreshRunningTextBtn">
-                                    <i class="bx bx-refresh"></i>
-                                </button>
+                                        {{ \Carbon\Carbon::parse($keterlambatan[0]->tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
+                                    </span>
+
+                                    @foreach ($keterlambatan as $absen)
+                                        @php
+                                            $formattedFoto = str_pad($absen->ID, 5, '0', STR_PAD_LEFT); // <-- Gunakan $absen->ID disini
+
+                                            $clientIp = request()->ip();
+
+                                            if ($clientIp === '127.0.0.1' || \Illuminate\Support\Str::startsWith($clientIp, '192.168.0.')) {
+                                                $baseUrl = 'http://192.168.0.8/hrd-milenia/foto/';
+                                            } else {
+                                                $baseUrl = 'http://pc.dyndns-office.com:8001/hrd-milenia/foto/';
+                                            }
+
+                                            $fotoUrl = $baseUrl . "{$formattedFoto}.JPG";
+                                        @endphp
+
+                                        <div class="d-flex align-items-center gap-2 my-1">
+                                            <img src="{{ $fotoUrl }}" alt="{{ $absen->Nama }}" class="rounded-circle" width="35" height="35" style="object-fit: cover;">
+                                            <span class="text-muted">
+                                                {{ $absen->Nama }} : {{ \Carbon\Carbon::parse($absen->jam)->format('H:i') }}
+                                            </span>
+                                        </div>
+                                    @endforeach
+
+                                    <span class="status-badge badge rounded-pill bg-success badge-sm mt-2">Active</span>
+                                @else
+                                    <span class="fw-bold">Tidak ada keterlambatan hari ini.</span>
+                                @endif
                             </div>
                         </div>
-                    @endforeach
+                        <div class="d-flex gap-2">
+                            <button class="btn btn-sm toggle-status btn-danger" data-id="">
+                                <i class="bx bx-power-off"></i>
+                            </button>
+                            <button class="btn btn-sm btn-dark" id="refreshRunningTextBtn">
+                                <i class="bx bx-refresh"></i>
+                            </button>
+                        </div>
+                    </div>
 
                     @forelse ($runningtexts as $runningtext)
                         <div class="runningtext-item d-flex align-items-center justify-content-between"

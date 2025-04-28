@@ -16,19 +16,20 @@ class RunningtextTGRController extends Controller
         // Ambil data keterlambatan absensi dari absen_mesin dan trkaryawan (kedua tabel ada di dbhrd)
         $keterlambatan = DB::connection('dbhrd') // Koneksi ke database dbhrd
             ->table('absen_mesin')
-            // Ambil data absensi yang masih aktif dan jamnya terlambat
             ->join('trkaryawan', 'absen_mesin.pin', '=', 'trkaryawan.IDMesin') // Tabel trkaryawan dari database dbhrd
+            ->where('trkaryawan.Cabang', 'TIGARAKSA') // Tambahkan kondisi Cabang = TIGARAKSA
+            ->where('trkaryawan.Aktif', 1)
             ->whereRaw('TIME(absen_mesin.jam) > absen_mesin.jammasuk') // Membandingkan jam masuk dengan jam yang diatur
             ->whereDate('absen_mesin.tanggal', '=', \Carbon\Carbon::today()->format('Y-m-d')) // Filter untuk hari ini
-            ->select('absen_mesin.tanggal', 'absen_mesin.jam', 'trkaryawan.Nama', 'absen_mesin.pin')
+            ->select('absen_mesin.tanggal', 'absen_mesin.jam', 'trkaryawan.Nama', 'absen_mesin.pin', 'trkaryawan.ID')
             ->get();
-
+    
         // Ambil semua data runningtext dengan tipe 'tgr', urut berdasarkan 'order'
         $runningtexts = DB::table('runningtexts') // Menggunakan database default milenia_display
             ->where('type', 'tgr')
             ->orderBy('order')
             ->get();
-
+    
         return view('admin.tgr.runningtext', compact('runningtexts', 'keterlambatan'));
     }
 

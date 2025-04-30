@@ -49,56 +49,44 @@
                 </button>
             </div>
             <div class="card-body">
-                <div id="runningtextList" class="sortable-list">
-                    <div class="runningtext-item d-flex bg-body align-items-center justify-content-between">
-                        <div class="d-flex align-items-center gap-3">
-                            <span class="handle"><i class="bx bx-menu"></i></span>
-                            <div class="d-flex flex-column">
-                                @if (count($keterlambatan) > 0)
-                                    <span class="fw-bold">
-                                        Keterlambatan
-                                        {{ \Carbon\Carbon::parse($keterlambatan[0]->tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
-                                    </span>
+                <div class="runningtext-item d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex flex-column">
+                            @if (count($keterlambatan) > 0)
+                                <span class="fw-bold mb-2">
+                                    Keterlambatan
+                                    {{ \Carbon\Carbon::parse($keterlambatan[0]->tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
+                                </span>
 
-                                    @foreach ($keterlambatan as $absen)
-                                        @php
-                                            $formattedFoto = str_pad($absen->ID, 5, '0', STR_PAD_LEFT); // <-- Gunakan $absen->ID disini
+                                @foreach ($keterlambatan as $absen)
+                                    @php
+                                        $formattedFoto = str_pad($absen->ID, 5, '0', STR_PAD_LEFT); // <-- Gunakan $absen->ID disini
 
-                                            $clientIp = request()->ip();
+                                        $clientIp = request()->ip();
 
-                                            if ($clientIp === '127.0.0.1' || \Illuminate\Support\Str::startsWith($clientIp, '192.168.0.')) {
-                                                $baseUrl = 'http://192.168.0.8/hrd-milenia/foto/';
-                                            } else {
-                                                $baseUrl = 'http://pc.dyndns-office.com:8001/hrd-milenia/foto/';
-                                            }
+                                        if ($clientIp === '127.0.0.1' || \Illuminate\Support\Str::startsWith($clientIp, '192.168.0.')) {
+                                            $baseUrl = 'http://192.168.0.8/hrd-milenia/foto/';
+                                        } else {
+                                            $baseUrl = 'http://pc.dyndns-office.com:8001/hrd-milenia/foto/';
+                                        }
 
-                                            $fotoUrl = $baseUrl . "{$formattedFoto}.JPG";
-                                        @endphp
+                                        $fotoUrl = $baseUrl . "{$formattedFoto}.JPG";
+                                    @endphp
 
-                                        <div class="d-flex align-items-center gap-2 my-1">
-                                            <img src="{{ $fotoUrl }}" alt="{{ $absen->Nama }}" class="rounded-circle" width="35" height="35" style="object-fit: cover;">
-                                            <span class="text-muted">
-                                                {{ $absen->Nama }} : {{ \Carbon\Carbon::parse($absen->jam)->format('H:i') }}
-                                            </span>
-                                        </div>
-                                    @endforeach
-
-                                    <span class="status-badge badge rounded-pill bg-success badge-sm mt-2">Active</span>
-                                @else
-                                    <span class="fw-bold">Tidak ada keterlambatan hari ini.</span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="d-flex gap-2">
-                            <button class="btn btn-sm toggle-status btn-danger" data-id="">
-                                <i class="bx bx-power-off"></i>
-                            </button>
-                            <button class="btn btn-sm btn-dark" id="refreshRunningTextBtn">
-                                <i class="bx bx-refresh"></i>
-                            </button>
+                                    <div class="d-flex align-items-center gap-2 my-1">
+                                        <img src="{{ $fotoUrl }}" alt="{{ $absen->Nama }}" class="rounded-circle" width="35" height="35" style="object-fit: cover;">
+                                        <span class="text-muted">
+                                            {{ $absen->Nama }} : {{ \Carbon\Carbon::parse($absen->jam)->format('H:i') }}
+                                        </span>
+                                    </div>
+                                @endforeach
+                            @else
+                                <span class="fw-bold">Tidak ada keterlambatan hari ini.</span>
+                            @endif
                         </div>
                     </div>
-
+                </div>
+                <div id="runningtextList" class="sortable-list">
                     @forelse ($runningtexts as $runningtext)
                         <div class="runningtext-item d-flex align-items-center justify-content-between"
                             data-id="{{ $runningtext->id }}">
@@ -119,8 +107,7 @@
                                     <i class="bx bx-power-off"></i>
                                 </button>
                                 <button class="btn btn-primary btn-sm edit-runningtext" data-id="{{ $runningtext->id }}"
-                                    data-title="{{ $runningtext->name }}"
-                                    data-image="{{ asset('storage/' . $runningtext->image) }}">
+                                    data-title="{{ $runningtext->name }}" >
                                     <i class="bx bx-edit"></i>
                                 </button>
                                 <button class="btn btn-danger btn-sm delete-runningtext" data-id="{{ $runningtext->id }}">
@@ -136,36 +123,30 @@
         </div>
     </div>
 
-    <!-- Add Banner Modal -->
-    <div class="modal fade" id="addBannerModal" tabindex="-1" aria-hidden="true">
+    <!-- Add Running Text Modal -->
+    <div class="modal fade" id="addRunningtextModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Banner</h5>
+                    <h5 class="modal-title">Add New Running Text</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="bannerForm" action="{{ route('admin.tgr.banner.store') }}" method="POST"
-                    enctype="multipart/form-data">
+                <form id="runningtextForm" action="{{ route('admin.tgr.runningtext.store') }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Banner Title</label>
-                            <input type="text" class="form-control" name="title" placeholder="Enter banner title"
-                                required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Banner Image</label>
-                            <input type="file" class="form-control" name="image" accept="image/*" required>
-                            <small class="text-muted"><span class="text-danger">*</span> max size: 10MB</small>
-                            <div class="mt-2">
-                                <img id="imagePreview" src="#" alt="Preview" class="img-fluid d-none"
-                                    style="max-height: 200px;">
+                            <label class="form-label">Running Text</label>
+                            <div class="d-flex align-items-start mb-1">
+                                <textarea id="runningTextInput" class="form-control" name="name" rows="3" placeholder="Enter running text with emoji" required></textarea>
                             </div>
+                            <small class="text-muted">
+                                Tekan <kbd>Windows</kbd> + <kbd>.</kbd> atau <kbd>Windows</kbd> + <kbd>;</kbd> di keyboard untuk menambahkan emoji 😊
+                            </small>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Banner</button>
+                        <button type="submit" class="btn btn-primary">Save Running Text</button>
                     </div>
                 </form>
             </div>
@@ -242,45 +223,45 @@
             });
         @endif
 
-        // URUTAN BANNER
-        const sortable = Sortable.create(document.getElementById('bannerList'), {
+        // URUTAN RUNNING TEXT
+        const sortable = new Sortable(document.getElementById('runningtextList'), {
             animation: 150,
             onUpdate: function(evt) {
-                const itemIds = Array.from(document.querySelectorAll('.banner-item')).map(item => item.dataset
-                    .id);
+                const itemIds = Array.from(document.querySelectorAll('.runningtext-item')).map(item => item.dataset.id);
 
-                fetch("{{ route('admin.tgr.banner.update-order') }}", {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/json',
-                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                        },
-                        body: JSON.stringify({
-                            order: itemIds
-                        })
+                // Kirim urutan baru ke backend
+                fetch("{{ route('admin.tgr.runningtext.update-order') }}", {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    body: JSON.stringify({
+                        order: itemIds
                     })
-                    .then(response => response.json())
-                    .then(data => {
-                        // Show success SweetAlert on successful order change
-                        Swal.fire({
-                            toast: true,
-                            position: 'bottom-end', // Display at the bottom right
-                            icon: 'success',
-                            title: 'Urutan banner berhasil diubah!',
-                            showConfirmButton: false,
-                            timer: 2000,
-                            timerProgressBar: true
-                        });
-                    })
-                    .catch(error => {
-                        // If there is an error during the update
-                        Swal.fire({
-                            icon: 'error',
-                            title: 'Gagal!',
-                            text: 'Terjadi kesalahan saat mengubah urutan.',
-                            showConfirmButton: true
-                        });
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Tampilkan notifikasi sukses
+                    Swal.fire({
+                        toast: true,
+                        position: 'bottom-end',  // Menampilkan di pojok bawah kanan
+                        icon: 'success',
+                        title: 'Urutan running text berhasil diubah!',
+                        showConfirmButton: false,
+                        timer: 2000,
+                        timerProgressBar: true
                     });
+                })
+                .catch(error => {
+                    // Jika terjadi error saat pembaruan
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Gagal!',
+                        text: 'Terjadi kesalahan saat mengubah urutan.',
+                        showConfirmButton: true
+                    });
+                });
             }
         });
 

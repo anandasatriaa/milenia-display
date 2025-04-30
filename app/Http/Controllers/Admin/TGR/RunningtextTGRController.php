@@ -33,68 +33,63 @@ class RunningtextTGRController extends Controller
         return view('admin.tgr.runningtext', compact('runningtexts', 'keterlambatan'));
     }
 
-    // public function store(Request $request)
-    // {
-    //     $request->validate([
-    //         'title' => 'required|string|max:255',
-    //         'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240', // Maksimal 10MB
-    //     ]);
+    public function store(Request $request)
+    {
+        $request->validate([
+            'name' => 'required|string',
+        ]);
 
-    //     // Upload image
-    //     $imagePath = $request->file('image')->store('tgr/banners', 'public');
+        // Generate custom ID
+        $prefix = 'TXTTGR';
+        $lastId = DB::table('runningtexts')
+            ->where('type', 'tgr')
+            ->where('id', 'like', "$prefix%")
+            ->orderByDesc('id')
+            ->value('id');
 
-    //     // Generate custom ID
-    //     $prefix = 'BNRTGR';
-    //     $lastId = DB::table('banners')
-    //         ->where('type', 'tgr')
-    //         ->where('id', 'like', "$prefix%")
-    //         ->orderByDesc('id')
-    //         ->value('id');
+        $nextNumber = 1;
+        if ($lastId) {
+            $lastNumber = (int) str_replace($prefix, '', $lastId);
+            $nextNumber = $lastNumber + 1;
+        }
+        $customId = $prefix . $nextNumber;
 
-    //     $nextNumber = 1;
-    //     if ($lastId) {
-    //         $lastNumber = (int) str_replace($prefix, '', $lastId);
-    //         $nextNumber = $lastNumber + 1;
-    //     }
-    //     $customId = $prefix . $nextNumber;
+        // Get latest order
+        $lastOrder = DB::table('runningtexts')
+            ->where('type', 'tgr')
+            ->max('order');
+        $newOrder = $lastOrder ? $lastOrder + 1 : 1;
 
-    //     // Get latest order
-    //     $lastOrder = DB::table('banners')
-    //         ->where('type', 'tgr')
-    //         ->max('order');
-    //     $newOrder = $lastOrder ? $lastOrder + 1 : 1;
+        // Insert data
+        DB::table('runningtexts')->insert([
+            'id' => $customId,
+            'name' => $request->input('name'),
+            'active' => 1,
+            'order' => $newOrder,
+            'type' => 'tgr',
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
 
-    //     // Insert data
-    //     DB::table('banners')->insert([
-    //         'id' => $customId,
-    //         'name' => $request->input('title'),
-    //         'image' => $imagePath,
-    //         'active' => 1,
-    //         'order' => $newOrder,
-    //         'type' => 'tgr',
-    //         'created_at' => now(),
-    //         'updated_at' => now(),
-    //     ]);
+        return redirect()->back()->with('success', 'Running Text berhasil ditambahkan!');
+    }
 
-    //     return redirect()->back()->with('success', 'Banner berhasil ditambahkan!');
-    // }
+    public function updateOrder(Request $request)
+    {
+        // Validasi data yang dikirim
+        $request->validate([
+            'order' => 'required|array',
+            'order.*' => 'exists:runningtexts,id', // Pastikan ID yang dikirim ada di tabel runningtexts
+        ]);
 
-    // public function updateOrder(Request $request)
-    // {
-    //     // Validasi data yang dikirim
-    //     $request->validate([
-    //         'order' => 'required|array',
-    //         'order.*' => 'exists:banners,id', // Pastikan ID yang dikirim ada di tabel banners
-    //     ]);
+        // Update urutan runningtext berdasarkan ID
+        foreach ($request->order as $index => $runningtextId) {
+            Runningtext::where('id', $runningtextId)->update(['order' => $index + 1]); // Menyimpan urutan baru
+        }
 
-    //     // Update urutan banner berdasarkan ID
-    //     foreach ($request->order as $index => $bannerId) {
-    //         Banner::where('id', $bannerId)->update(['order' => $index + 1]); // Menyimpan urutan baru
-    //     }
-
-    //     // Respons sukses
-    //     return response()->json(['status' => 'success']);
-    // }
+        // Respons sukses
+        return response()->json(['status' => 'success']);
+    }
 
     // public function toggleStatus(Request $request)
     // {

@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DisplayTGRController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Admin\TGR\BannerTGRController;
 use App\Http\Controllers\Admin\TGR\VideoTGRController;
@@ -10,9 +11,7 @@ Route::get('/', function () {
     return view('welcome');
 })->name('home');
 
-Route::get('/tgr', function () {
-    return view('display-tgr');
-})->name('tgr');
+Route::get('/tgr', [DisplayTGRController::class, 'index'])->name('tgr');
 
 Route::get('/pb', function () {
     return view('display-pb');

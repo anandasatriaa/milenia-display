@@ -389,15 +389,14 @@
                 </div>
                 <!-- Banner/Event Image -->
                 <div class="event-banner">
-                    <img src="{{ asset('assets/img/banner/tgr/banner1.png') }}" class="event-image" alt="Banner Event"
-                        style="width:42vw; height:auto; border-radius: 10px;" />
-                </div>
+    <img id="eventImage" src="{{ asset('storage/' . $banners->first()->image) }}" class="event-image"
+         style="width:42vw; height:auto; border-radius: 10px;" />
+</div>
             </div>
             <!-- Video -->
             <div class="video-container">
-                <video class="video-player" src="{{ asset('assets/img/NEW_EMPLOYEE.mp4') }}" autoplay muted loop
-                    playsinline></video>
-            </div>
+    <video id="videoPlayer" class="video-player" autoplay muted loop playsinline style="display: none;"></video>
+</div>
         </div>
 
         <!-- 3. Running Text di Bawah -->
@@ -423,6 +422,35 @@
         setInterval(updateTime, 1000);
         updateTime();
     </script>
+
+    <!-- BANNER & VIDEO -->
+    <script>
+    const banners = @json($banners);
+    const eventImage = document.getElementById('eventImage');
+    const videoPlayer = document.getElementById('videoPlayer');
+
+    let current = 0;
+
+    function showNextBanner() {
+        const banner = banners[current];
+
+        // Cek apakah file adalah video
+        if (banner.image.match(/\.(mp4|webm|ogg)$/i)) {
+            eventImage.style.display = 'none';
+            videoPlayer.style.display = 'block';
+            videoPlayer.src = "/storage/" + banner.image;
+        } else {
+            videoPlayer.style.display = 'none';
+            eventImage.style.display = 'block';
+            eventImage.src = "/storage/" + banner.image;
+        }
+
+        current = (current + 1) % banners.length;
+    }
+
+    showNextBanner();
+    setInterval(showNextBanner, 8000); // Ganti tiap 8 detik
+</script>
 </body>
 
 </html>

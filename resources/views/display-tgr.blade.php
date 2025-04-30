@@ -66,11 +66,19 @@
         }
 
         .company-name {
-            font-size: 2.5rem;
+            line-height: 1;
+            font-size: 3rem;
             font-weight: 600;
             background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
+        }
+
+        .company-address {
+            font-size: 0.7rem;
+            color: var(--text-light);
+            /* max-width: 400px; */
+            line-height: 1.4;
         }
 
         /* kanan header: date/time + live */
@@ -81,7 +89,7 @@
         }
 
         .header-datetime {
-            font-size: 1rem;
+            font-size: 2.3rem;
             color: var(--text-light);
         }
 
@@ -89,17 +97,24 @@
             margin: 0 0.25rem;
         }
 
+        #header-time {
+            display: inline-block;
+            width: 6ch;
+            text-align: center;
+        }
+
         .live-status {
             display: flex;
             align-items: center;
             font-weight: 600;
             color: var(--primary-color);
+            font-size: 2.3rem;
         }
 
         .live-status .live-dot {
             display: inline-block;
-            width: 10px;
-            height: 10px;
+            width: 15px;
+            height: 15px;
             margin-right: 0.5rem;
             background: red;
             border-radius: 50%;
@@ -131,7 +146,7 @@
         .left-panel {
             display: grid;
             grid-template-rows: auto 1fr;
-            gap: 1rem;
+            /* gap: 1rem; */
             animation: slideRight 1s ease-out;
         }
 
@@ -141,21 +156,55 @@
             align-items: center;
             justify-content: center;
             gap: 1rem;
-            background: var(--card-bg);
-            border: 2px solid var(--primary-color);
-            border-radius: 15px;
-            padding: 1rem 1.5rem;
+            position: relative;
+            /* untuk pseudo-element */
+            background: linear-gradient(135deg, #696cff, #d46fff);
+            /* kilap dasar */
+            border: 2px solid linear-gradient(135deg, #696cff, #d46fff);
+            border-radius: 10px;
+            padding: 0.3rem 0.3rem;
+            width: 42vw;
+            min-width: 200px;
+            margin: 0 auto;
+            overflow: hidden;
+            /* penting agar efek tidak keluar kotak */
+        }
+
+        /* Efek kilap animasi shimmer/glint */
+        /* .event::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: linear-gradient(120deg,
+                    transparent,
+                    rgba(255, 255, 255, 0.5),
+                    transparent);
+            transform: rotate(25deg);
+            animation: shimmer 3s infinite linear;
+        } */
+
+        @keyframes shimmer {
+            0% {
+                transform: translateX(-100%) rotate(25deg);
+            }
+
+            100% {
+                transform: translateX(100%) rotate(25deg);
+            }
         }
 
         .event .calendar-icon {
             font-size: 1.5rem;
-            color: var(--primary-color);
+            color: whitesmoke;
         }
 
         .event .event-title {
-            font-size: 1.25rem;
+            font-size: 1.5rem;
             font-weight: 600;
-            color: var(--secondary-color);
+            color: white;
         }
 
         /* Banner/Event image placeholder */
@@ -166,8 +215,26 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            position: relative;
+            overflow: hidden;
             /* color: var(--text-light);
                 font-size:1.2rem; */
+        }
+
+        .event-banner::before {
+            content: "";
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 150%;
+            height: 200%;
+            background: linear-gradient(120deg,
+                    transparent 45%,
+                    rgba(255, 255, 255, 0.5) 50%,
+                    transparent 55%);
+            transform: rotate(20deg);
+            animation: shimmer 2.5s infinite linear;
+            pointer-events: none;
         }
 
         .video-container {
@@ -187,9 +254,11 @@
         }
 
         .video-player {
-            width: 100%;
-            /* height: 100%; */
-            object-fit: contain;
+            width: 45vw;
+            /* selalu 90% lebar viewport */
+            max-width: 1200px;
+            /* tapi maksimal 1200px */
+            height: auto;
             border-radius: 10px;
         }
 
@@ -290,7 +359,13 @@
         <header class="header">
             <div class="logo-container">
                 <img src="{{ asset('assets/img/logo-milenia-2.png') }}" alt="Logo" class="logo" />
-                <h1 class="company-name">MILENIA GROUP</h1>
+                <div>
+                    <h1 class="company-name">MILENIA GROUP</h1>
+                    <p class="company-address">
+                        Jl. Pemda Tigaraksa Kp.Ciapus Indah, RT.04/RW.02, Budi Mulya, Kec. Cikupa, Kabupaten Tangerang,
+                        Banten 15710
+                    </p>
+                </div>
             </div>
             <div class="header-right">
                 <div class="header-datetime">
@@ -310,17 +385,17 @@
                 <!-- Kotak Event -->
                 <div class="event">
                     <i class="fas fa-calendar-alt calendar-icon"></i>
-                    <div class="event-title">Milenia Tech Summit 2024</div>
+                    <div class="event-title">EVENT & INFORMATION</div>
                 </div>
                 <!-- Banner/Event Image -->
                 <div class="event-banner">
-                    <img src="{{ asset('assets/img/banner/banner.png') }}" alt="Banner Event"
-                        style="width:70%; height:auto; border-radius: 10px;" />
+                    <img src="{{ asset('assets/img/banner/tgr/banner1.png') }}" class="event-image" alt="Banner Event"
+                        style="width:42vw; height:auto; border-radius: 10px;" />
                 </div>
             </div>
             <!-- Video -->
             <div class="video-container">
-                <video class="video-player" src="https://www.w3schools.com/html/mov_bbb.mp4" autoplay muted loop
+                <video class="video-player" src="{{ asset('assets/img/NEW_EMPLOYEE.mp4') }}" autoplay muted loop
                     playsinline></video>
             </div>
         </div>

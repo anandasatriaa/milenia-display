@@ -19,6 +19,20 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
+        .runningtext-item2 {
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+        }
+
+        .runningtext-item2:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
         .runningtext-thumbnail {
             height: 150px;
             object-fit: cover;
@@ -49,7 +63,7 @@
                 </button>
             </div>
             <div class="card-body">
-                <div class="runningtext-item d-flex align-items-center justify-content-between">
+                <div class="runningtext-item2 d-flex align-items-center justify-content-between">
                     <div class="d-flex align-items-center gap-3">
                         <div class="d-flex flex-column">
                             @if (count($keterlambatan) > 0)
@@ -107,7 +121,7 @@
                                     <i class="bx bx-power-off"></i>
                                 </button>
                                 <button class="btn btn-primary btn-sm edit-runningtext" data-id="{{ $runningtext->id }}"
-                                    data-title="{{ $runningtext->name }}" >
+                                    data-title="{{ $runningtext->name }}">
                                     <i class="bx bx-edit"></i>
                                 </button>
                                 <button class="btn btn-danger btn-sm delete-runningtext" data-id="{{ $runningtext->id }}">
@@ -137,10 +151,12 @@
                         <div class="mb-3">
                             <label class="form-label">Running Text</label>
                             <div class="d-flex align-items-start mb-1">
-                                <textarea id="runningTextInput" class="form-control" name="name" rows="3" placeholder="Enter running text with emoji" required></textarea>
+                                <textarea id="runningTextInput" class="form-control" name="name" rows="3"
+                                    placeholder="Enter running text with emoji" required></textarea>
                             </div>
                             <small class="text-muted">
-                                Tekan <kbd>Windows</kbd> + <kbd>.</kbd> atau <kbd>Windows</kbd> + <kbd>;</kbd> di keyboard untuk menambahkan emoji 😊
+                                Tekan <kbd>Windows</kbd> + <kbd>.</kbd> atau <kbd>Windows</kbd> + <kbd>;</kbd> di keyboard
+                                untuk menambahkan emoji 😊
                             </small>
                         </div>
                     </div>
@@ -153,36 +169,34 @@
         </div>
     </div>
 
-    <!-- Edit Banner Modal -->
-    <div class="modal fade" id="editBannerModal" tabindex="-1" aria-hidden="true">
+    <!-- Edit Running Text Modal -->
+    <div class="modal fade" id="editRunningtextModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Banner</h5>
+                    <h5 class="modal-title">Edit Running Text</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="editBannerForm" method="POST" enctype="multipart/form-data">
+                <form id="editRunningtextForm" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="modal-body">
-                        <input type="hidden" name="id" id="editBannerId">
+                        <input type="hidden" name="id" id="editRunningtextId">
                         <div class="mb-3">
-                            <label class="form-label">Banner Title</label>
-                            <input type="text" class="form-control" name="title" id="editBannerTitle" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Banner Image (leave empty to keep current)</label>
-                            <input type="file" class="form-control" name="image" accept="image/*">
-                            <small class="text-muted"><span class="text-danger">*</span> max size: 10MB</small>
-                            <div class="mt-2">
-                                <img id="editImagePreview" src="#" alt="Preview" class="img-fluid"
-                                    style="max-height: 200px;">
+                            <label class="form-label">Running Text</label>
+                            <div class="d-flex align-items-start mb-1">
+                                <textarea id="editRunningtextName" class="form-control" name="name" rows="3"
+                                    placeholder="Enter running text with emoji" required></textarea>
                             </div>
+                            <small class="text-muted">
+                                Tekan <kbd>Windows</kbd> + <kbd>.</kbd> atau <kbd>Windows</kbd> + <kbd>;</kbd> di keyboard
+                                untuk menambahkan emoji 😊
+                            </small>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Update Banner</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
                     </div>
                 </form>
             </div>
@@ -227,53 +241,43 @@
         const sortable = new Sortable(document.getElementById('runningtextList'), {
             animation: 150,
             onUpdate: function(evt) {
-                const itemIds = Array.from(document.querySelectorAll('.runningtext-item')).map(item => item.dataset.id);
+                const itemIds = Array.from(document.querySelectorAll('.runningtext-item')).map(item => item
+                    .dataset.id);
 
                 // Kirim urutan baru ke backend
                 fetch("{{ route('admin.tgr.runningtext.update-order') }}", {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                    },
-                    body: JSON.stringify({
-                        order: itemIds
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({
+                            order: itemIds
+                        })
                     })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    // Tampilkan notifikasi sukses
-                    Swal.fire({
-                        toast: true,
-                        position: 'bottom-end',  // Menampilkan di pojok bawah kanan
-                        icon: 'success',
-                        title: 'Urutan running text berhasil diubah!',
-                        showConfirmButton: false,
-                        timer: 2000,
-                        timerProgressBar: true
+                    .then(response => response.json())
+                    .then(data => {
+                        // Tampilkan notifikasi sukses
+                        Swal.fire({
+                            toast: true,
+                            position: 'bottom-end', // Menampilkan di pojok bawah kanan
+                            icon: 'success',
+                            title: 'Urutan running text berhasil diubah!',
+                            showConfirmButton: false,
+                            timer: 2000,
+                            timerProgressBar: true
+                        });
+                    })
+                    .catch(error => {
+                        // Jika terjadi error saat pembaruan
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Gagal!',
+                            text: 'Terjadi kesalahan saat mengubah urutan.',
+                            showConfirmButton: true
+                        });
                     });
-                })
-                .catch(error => {
-                    // Jika terjadi error saat pembaruan
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Gagal!',
-                        text: 'Terjadi kesalahan saat mengubah urutan.',
-                        showConfirmButton: true
-                    });
-                });
             }
-        });
-
-        // IMAGE PREVIEW DI MODAL ADD BANNER
-        document.querySelector('input[name="image"]').addEventListener('change', function(e) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                const preview = document.getElementById('imagePreview');
-                preview.src = reader.result;
-                preview.classList.remove('d-none');
-            };
-            reader.readAsDataURL(e.target.files[0]);
         });
     </script>
 
@@ -283,16 +287,16 @@
             // Meng-handle klik tombol toggle status
             document.querySelectorAll('.toggle-status').forEach(button => {
                 button.addEventListener('click', function() {
-                    const bannerId = this.getAttribute('data-id');
+                    const runningtextId = this.getAttribute('data-id');
 
-                    fetch("{{ route('admin.tgr.banner.toggle-status') }}", {
+                    fetch("{{ route('admin.tgr.runningtext.toggle-status') }}", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
                             body: JSON.stringify({
-                                id: bannerId
+                                id: runningtextId
                             })
                         })
                         .then(response => response.json())
@@ -302,10 +306,11 @@
                             if (data.status === 'success' && typeof data.active !==
                                 'undefined') {
                                 // Ubah badge status dan icon
-                                const bannerItem = document.querySelector(
-                                    `.banner-item[data-id="${bannerId}"]`);
-                                const badge = bannerItem.querySelector('.status-badge');
-                                const toggleButton = bannerItem.querySelector('.toggle-status');
+                                const runningtextItem = document.querySelector(
+                                    `.runningtext-item[data-id="${runningtextId}"]`);
+                                const badge = runningtextItem.querySelector('.status-badge');
+                                const toggleButton = runningtextItem.querySelector(
+                                    '.toggle-status');
 
                                 // Toggle the 'active' status
                                 if (data.active) {
@@ -329,8 +334,8 @@
                                     toast: true,
                                     position: 'bottom-end',
                                     icon: 'success',
-                                    title: data.active ? 'Banner Activated' :
-                                        'Banner Deactivated',
+                                    title: data.active ? 'Running Text Activated' :
+                                        'Running Text Deactivated',
                                     showConfirmButton: false,
                                     timer: 2000,
                                     timerProgressBar: true
@@ -358,42 +363,24 @@
         });
     </script>
 
-    {{-- EDIT BANNER --}}
+    {{-- EDIT RUNNING TEXT --}}
     <script>
-        $(document).on('click', '.edit-banner', function() {
-            const bannerId = $(this).data('id');
-            $.get(`/admin/tgr/banner/${bannerId}/edit`, function(data) {
-                $('#editBannerId').val(data.id); // Menyimpan ID banner yang diedit
-                $('#editBannerTitle').val(data.name); // Menampilkan judul banner di form
-                $('#editImagePreview').attr('src', `/storage/${data.image}`).removeClass(
-                    'd-none'); // Menampilkan preview gambar lama
-                $('#editBannerForm').attr('action',
-                    `/admin/tgr/banner/${bannerId}`); // Menetapkan URL action form
-                $('#editBannerModal').modal('show'); // Menampilkan modal
+        $(document).on('click', '.edit-runningtext', function() {
+            const runningtextId = $(this).data('id');
+            $.get(`/admin/tgr/runningtext/${runningtextId}/edit`, function(data) {
+                $('#editRunningtextId').val(data.id);
+                $('#editRunningtextName').val(data.name);
+                $('#editRunningtextForm').attr('action', `/admin/tgr/runningtext/${runningtextId}`);
+                $('#editRunningtextModal').modal('show');
             });
-        });
-
-        // Event listener untuk mengganti preview gambar saat memilih file baru
-        $('#editBannerForm input[name="image"]').on('change', function() {
-            const file = this.files[0];
-            if (file) {
-                // Membaca gambar baru menggunakan FileReader
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    $('#editImagePreview').attr('src', e.target
-                        .result); // Ganti preview dengan gambar yang baru dipilih
-                };
-                reader.readAsDataURL(file); // Membaca file dan menyiapkan gambar untuk ditampilkan
-            }
         });
     </script>
 
-    {{-- DELETE BANNER --}}
+    {{-- DELETE RUNNING TEXT --}}
     <script>
-        $(document).on('click', '.delete-banner', function() {
-            const bannerId = $(this).data('id');
+        $(document).on('click', '.delete-runningtext', function() {
+            const runningtextId = $(this).data('id');
 
-            // Konfirmasi dengan SweetAlert
             Swal.fire({
                 title: 'Are you sure?',
                 text: "This action cannot be undone!",
@@ -404,9 +391,9 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Jika konfirmasi di-OK-kan, hapus data
-                    let deleteUrl = `{{ route('admin.tgr.banner.delete', ':id') }}`.replace(':id',
-                        bannerId);
+                    let deleteUrl = `{{ route('admin.tgr.runningtext.delete', ':id') }}`.replace(':id',
+                        runningtextId);
+
                     $.ajax({
                         url: deleteUrl,
                         type: 'DELETE',
@@ -416,16 +403,16 @@
                         success: function(response) {
                             Swal.fire(
                                 'Deleted!',
-                                'The banner has been deleted.',
+                                'Running text has been deleted.',
                                 'success'
                             );
-                            // Menghapus elemen banner dari halaman setelah dihapus
-                            $(`[data-id="${bannerId}"]`).closest('.banner-item').remove();
+                            $(`[data-id="${runningtextId}"]`).closest('.runningtext-item')
+                                .remove();
                         },
-                        error: function(xhr, status, error) {
+                        error: function() {
                             Swal.fire(
                                 'Failed!',
-                                'An error occurred while deleting the banner.',
+                                'An error occurred while deleting the running text.',
                                 'error'
                             );
                         }

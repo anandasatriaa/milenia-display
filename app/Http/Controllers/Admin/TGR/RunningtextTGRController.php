@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Str;
 use App\Models\Admin\Runningtext;
+use Illuminate\Support\Facades\Log;
 
 class RunningtextTGRController extends Controller
 {
@@ -91,81 +92,55 @@ class RunningtextTGRController extends Controller
         return response()->json(['status' => 'success']);
     }
 
-    // public function toggleStatus(Request $request)
-    // {
-    //     // Validasi data yang dikirim
-    //     $request->validate([
-    //         'id' => 'required|string|exists:banners,id',
-    //     ]);
+    public function toggleStatus(Request $request)
+    {
+        // Validasi data yang dikirim
+        $request->validate([
+            'id' => 'required|string|exists:runningtexts,id',
+        ]);
 
-    //     // Cari banner berdasarkan ID
-    //     $banner = Banner::find($request->id);
+        // Cari runningtext berdasarkan ID
+        $runningtext = Runningtext::find($request->id);
 
-    //     // Toggle status aktif
-    //     $banner->active = !$banner->active;
-    //     $banner->save();
+        // Toggle status aktif
+        $runningtext->active = !$runningtext->active;
+        $runningtext->save();
 
-    //     // Respons sukses dengan status baru
-    //     return response()->json([
-    //         'status' => 'success',
-    //         'active' => $banner->active,
-    //     ]);
-    // }
+        // Respons sukses dengan status baru
+        return response()->json([
+            'status' => 'success',
+            'active' => $runningtext->active,
+        ]);
+    }
 
-    // public function edit($id)
-    // {
-    //     // Ambil data banner berdasarkan ID
-    //     $banner = Banner::findOrFail($id);
+    public function edit($id)
+    {
+        $runningtext = Runningtext::findOrFail($id);
+        return response()->json($runningtext);
+    }
 
-    //     // Kembalikan data banner dalam format JSON untuk digunakan di frontend
-    //     return response()->json($banner);
-    // }
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required|string',
+        ]);
 
-    // public function update(Request $request, $id)
-    // {
-    //     $request->validate([
-    //         'title' => 'required|string|max:255',
-    //         'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240', // Maksimal 10MB
-    //     ]);
+        $runningtext = Runningtext::findOrFail($id);
+        $runningtext->name = $request->name;
+        $runningtext->save();
 
-    //     $banner = Banner::findOrFail($id); // Cari banner berdasarkan ID
+        return redirect()->back()->with('success', 'Running text berhasil diperbarui!');
+    }
 
-    //     // Update title
-    //     $banner->name = $request->input('title');
+    public function destroy($id)
+    {
+        $runningtext = Runningtext::find($id);
 
-    //     // Jika ada gambar baru, proses uploadnya
-    //     if ($request->hasFile('image')) {
-    //         // Hapus gambar lama
-    //         if (Storage::disk('public')->exists($banner->image)) {
-    //             Storage::disk('public')->delete($banner->image);
-    //         }
+        if ($runningtext) {
+            $runningtext->delete();
+            return response()->json(['status' => 'success']);
+        }
 
-    //         // Upload gambar baru
-    //         $imagePath = $request->file('image')->store('tgr/banners', 'public');
-    //         $banner->image = $imagePath;
-    //     }
-
-    //     // Simpan perubahan
-    //     $banner->save();
-
-    //     return redirect()->back()->with('success', 'Banner berhasil diperbarui!');
-    // }
-
-    // public function destroy($id)
-    // {
-    //     $banner = Banner::find($id);
-
-    //     if ($banner) {
-    //         // Path yang disimpan sudah relatif terhadap 'public' disk
-    //         if (Storage::disk('public')->exists($banner->image)) {
-    //             Storage::disk('public')->delete($banner->image);
-    //         }
-
-    //         $banner->delete();
-
-    //         return response()->json(['status' => 'success']);
-    //     }
-
-    //     return response()->json(['status' => 'error'], 404);
-    // }
+        return response()->json(['status' => 'error'], 404);
+    }
 }

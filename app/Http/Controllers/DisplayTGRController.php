@@ -15,6 +15,12 @@ class DisplayTGRController extends Controller
             ->orderBy('order')
             ->get();
 
-        return view('display-tgr', compact('banners'));
+        $videos = DB::table('videos')
+            ->where('active', 1)
+            ->where('type', 'tgr')
+            ->orderBy('order')
+            ->get();
+
+        return view('display-tgr', compact('banners', 'videos'));
     }
 }

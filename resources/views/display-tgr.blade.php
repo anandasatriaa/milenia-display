@@ -101,6 +101,7 @@
             display: inline-block;
             width: 6ch;
             text-align: center;
+            margin-right: 15px;
         }
 
         .live-status {
@@ -157,9 +158,7 @@
             justify-content: center;
             gap: 1rem;
             position: relative;
-            /* untuk pseudo-element */
             background: linear-gradient(135deg, #696cff, #d46fff);
-            /* kilap dasar */
             border: 2px solid linear-gradient(135deg, #696cff, #d46fff);
             border-radius: 10px;
             padding: 0.3rem 0.3rem;
@@ -167,24 +166,23 @@
             min-width: 200px;
             margin: 0 auto;
             overflow: hidden;
-            /* penting agar efek tidak keluar kotak */
         }
 
-        /* Efek kilap animasi shimmer/glint */
-        /* .event::before {
+        .event::before {
             content: "";
             position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            top: -100%;
+            left: -100%;
+            width: 150%;
+            height: 400%;
             background: linear-gradient(120deg,
-                    transparent,
-                    rgba(255, 255, 255, 0.5),
-                    transparent);
-            transform: rotate(25deg);
-            animation: shimmer 3s infinite linear;
-        } */
+                    transparent 45%,
+                    rgba(255, 255, 255, 0.5) 50%,
+                    transparent 55%);
+            transform: rotate(20deg);
+            animation: shimmer 2.5s infinite linear;
+            pointer-events: none;
+        }
 
         @keyframes shimmer {
             0% {
@@ -209,16 +207,17 @@
 
         /* Banner/Event image placeholder */
         .event-banner {
-            /* background:#eee;
-                border-radius:15px;
-                overflow:hidden; */
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
-            /* color: var(--text-light);
-                font-size:1.2rem; */
+        }
+
+        .event-image {
+            width:42vw;
+            height:auto;
+            border-radius: 10px;
         }
 
         .event-banner::before {
@@ -238,14 +237,10 @@
         }
 
         .video-container {
-            /* border-radius: 15px;
-            overflow: hidden;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1); */
             display: flex;
             align-items: center;
             justify-content: center;
             animation: slideLeft 1s ease-out;
-            /* background: var(--card-bg); */
         }
 
         .video-placeholder {
@@ -255,9 +250,6 @@
 
         .video-player {
             width: 45vw;
-            /* selalu 90% lebar viewport */
-            max-width: 1200px;
-            /* tapi maksimal 1200px */
             height: auto;
             border-radius: 10px;
         }
@@ -389,14 +381,18 @@
                 </div>
                 <!-- Banner/Event Image -->
                 <div class="event-banner">
-    <img id="eventImage" src="{{ asset('storage/' . $banners->first()->image) }}" class="event-image"
-         style="width:42vw; height:auto; border-radius: 10px;" />
-</div>
+                    <img id="eventImage" src="{{ asset('storage/' . $banners->first()->image) }}" class="event-image" />
+                </div>
             </div>
             <!-- Video -->
             <div class="video-container">
-    <video id="videoPlayer" class="video-player" autoplay muted loop playsinline style="display: none;"></video>
-</div>
+                @if ($videos->isNotEmpty())
+                    <video id="videoPlayer" class="video-player" autoplay muted playsinline controls>
+                        <source src="{{ asset('storage/' . $videos->first()->video) }}" type="video/mp4">
+                        Your browser does not support the video tag.
+                    </video>
+                @endif
+            </div>
         </div>
 
         <!-- 3. Running Text di Bawah -->
@@ -425,32 +421,34 @@
 
     <!-- BANNER & VIDEO -->
     <script>
-    const banners = @json($banners);
-    const eventImage = document.getElementById('eventImage');
-    const videoPlayer = document.getElementById('videoPlayer');
+        const banners = @json($banners->pluck('image')->map(fn($img) => asset('storage/' . $img)));
+        const videos = @json($videos->pluck('video')->map(fn($vid) => asset('storage/' . $vid)));
+    </script>
+    <script>
+        // Gambar
+        let bannerIndex = 0;
+        const bannerImg = document.getElementById("eventImage");
 
-    let current = 0;
-
-    function showNextBanner() {
-        const banner = banners[current];
-
-        // Cek apakah file adalah video
-        if (banner.image.match(/\.(mp4|webm|ogg)$/i)) {
-            eventImage.style.display = 'none';
-            videoPlayer.style.display = 'block';
-            videoPlayer.src = "/storage/" + banner.image;
-        } else {
-            videoPlayer.style.display = 'none';
-            eventImage.style.display = 'block';
-            eventImage.src = "/storage/" + banner.image;
+        function switchBanner() {
+            bannerIndex = (bannerIndex + 1) % banners.length;
+            bannerImg.src = banners[bannerIndex];
         }
 
-        current = (current + 1) % banners.length;
-    }
+        setInterval(switchBanner, 10000); // Setiap 10 detik
 
-    showNextBanner();
-    setInterval(showNextBanner, 8000); // Ganti tiap 8 detik
-</script>
+        // Video
+        let videoIndex = 0;
+        const videoPlayer = document.getElementById("videoPlayer");
+
+        function switchVideo() {
+            videoIndex = (videoIndex + 1) % videos.length;
+            videoPlayer.src = videos[videoIndex];
+            videoPlayer.load();
+            videoPlayer.play();
+        }
+
+        videoPlayer.addEventListener("ended", switchVideo);
+    </script>
 </body>
 
 </html>

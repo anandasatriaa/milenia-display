@@ -58,11 +58,12 @@
         .logo-container {
             display: flex;
             align-items: center;
-            gap: 1rem;
+            /* gap: 1rem; */
         }
 
         .logo {
             width: 80px;
+            margin-right: 1rem;
         }
 
         .company-name {
@@ -155,7 +156,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 1rem;
+            /* gap: 1rem; */
             position: relative;
             background: linear-gradient(135deg, #696cff, #d46fff);
             border: 2px solid linear-gradient(135deg, #696cff, #d46fff);
@@ -165,6 +166,10 @@
             min-width: 200px;
             margin: 0 auto;
             overflow: hidden;
+        }
+
+        .event i.calendar-icon {
+            margin-right: 1rem;
         }
 
         .event::before {

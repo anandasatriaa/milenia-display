@@ -398,7 +398,7 @@
         <!-- 3. Running Text di Bawah -->
         <div class="running">
             <div class="running-text">
-                🎉 PROMO SPESIAL HUT KE-15 MILENIA GROUP! 🎁 Diskon 30% semua produk! 🕒 Buruan!
+                {!! $fullRunningText !!}
             </div>
         </div>
     </div>

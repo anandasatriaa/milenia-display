@@ -1,10 +1,10 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Video TGR | Milenia Display')
+@section('title', 'Running Text PB | Milenia Display')
 
 @section('css')
     <style>
-        .video-item {
+        .runningtext-item {
             transition: all 0.3s ease;
             border: 1px solid #e9ecef;
             border-radius: 8px;
@@ -14,12 +14,26 @@
             cursor: move;
         }
 
-        .video-item:hover {
+        .runningtext-item:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .video-thumbnail {
+        .runningtext-item2 {
+            transition: all 0.3s ease;
+            border: 1px solid #e9ecef;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 10px;
+            background: white;
+        }
+
+        .runningtext-item2:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .runningtext-thumbnail {
             height: 150px;
             object-fit: cover;
             border-radius: 4px;
@@ -43,124 +57,150 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Video Management</h5>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVideoModal">
-                    <i class="bx bx-plus me-1"></i> Add Video
+                <h5 class="mb-0">Running Text Management</h5>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addRunningtextModal">
+                    <i class="bx bx-plus me-1"></i> Add Running Text
                 </button>
             </div>
             <div class="card-body">
-                <div id="videoList" class="sortable-list">
-                    @forelse ($videos as $video)
-                        <div class="video-item d-flex align-items-center justify-content-between"
-                            data-id="{{ $video->id }}">
+                <div class="runningtext-item2 d-flex align-items-center justify-content-between">
+                    <div class="d-flex align-items-center gap-3">
+                        <div class="d-flex flex-column">
+                            @if (count($keterlambatan) > 0)
+                                <span class="fw-bold mb-2">
+                                    Keterlambatan
+                                    {{ \Carbon\Carbon::parse($keterlambatan[0]->tanggal)->locale('id')->isoFormat('dddd, D MMMM YYYY') }}
+                                </span>
+
+                                @foreach ($keterlambatan as $absen)
+                                    @php
+                                        $formattedFoto = str_pad($absen->ID, 5, '0', STR_PAD_LEFT); // <-- Gunakan $absen->ID disini
+
+                                        $clientIp = request()->ip();
+
+                                        if (
+                                            $clientIp === '127.0.0.1' ||
+                                            \Illuminate\Support\Str::startsWith($clientIp, '192.168.0.')
+                                        ) {
+                                            $baseUrl = 'http://192.168.0.8/hrd-milenia/foto/';
+                                        } else {
+                                            $baseUrl = 'http://pc.dyndns-office.com:8001/hrd-milenia/foto/';
+                                        }
+
+                                        $fotoUrl = $baseUrl . "{$formattedFoto}.JPG";
+                                    @endphp
+
+                                    <div class="d-flex align-items-center gap-2 my-1">
+                                        <img src="{{ $fotoUrl }}" alt="{{ $absen->Nama }}" class="rounded-circle"
+                                            width="35" height="35" style="object-fit: cover;">
+                                        <span class="text-muted">
+                                            {{ $absen->Nama }} : {{ \Carbon\Carbon::parse($absen->jam)->format('H:i') }}
+                                        </span>
+                                    </div>
+                                @endforeach
+                            @else
+                                <span class="fw-bold">Tidak ada keterlambatan hari ini.</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+                <div id="runningtextList" class="sortable-list">
+                    @forelse ($runningtexts as $runningtext)
+                        <div class="runningtext-item d-flex align-items-center justify-content-between"
+                            data-id="{{ $runningtext->id }}">
                             <div class="d-flex align-items-center gap-3">
                                 <span class="handle"><i class="bx bx-menu"></i></span>
-
-                                <video width="150" class="rounded" controls muted>
-                                    <source src="{{ asset('storage/' . $video->video) }}" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
-
                                 <div class="d-flex flex-column">
-                                    <span class="text-muted">{{ $video->name }}</span>
+                                    <span class="text-muted">{{ $runningtext->name }}</span>
                                     <span
-                                        class="status-badge badge rounded-pill {{ $video->active ? 'bg-success' : 'bg-danger' }} badge-sm">
-                                        {{ $video->active ? 'Active' : 'Inactive' }}
+                                        class="status-badge badge rounded-pill {{ $runningtext->active ? 'bg-success' : 'bg-danger' }} badge-sm">
+                                        {{ $runningtext->active ? 'Active' : 'Inactive' }}
                                     </span>
                                 </div>
                             </div>
                             <div class="d-flex gap-2">
-                                <button class="btn btn-sm toggle-status {{ $video->active ? 'btn-danger' : 'btn-success' }}"
-                                    data-id="{{ $video->id }}">
+                                <button
+                                    class="btn btn-sm toggle-status {{ $runningtext->active ? 'btn-danger' : 'btn-success' }}"
+                                    data-id="{{ $runningtext->id }}">
                                     <i class="bx bx-power-off"></i>
                                 </button>
-                                <button class="btn btn-primary btn-sm edit-video" data-id="{{ $video->id }}"
-                                    data-title="{{ $video->name }}" data-video="{{ asset('storage/' . $video->video) }}">
+                                <button class="btn btn-primary btn-sm edit-runningtext" data-id="{{ $runningtext->id }}"
+                                    data-title="{{ $runningtext->name }}">
                                     <i class="bx bx-edit"></i>
                                 </button>
-                                <button class="btn btn-danger btn-sm delete-video" data-id="{{ $video->id }}">
+                                <button class="btn btn-danger btn-sm delete-runningtext" data-id="{{ $runningtext->id }}">
                                     <i class="bx bx-trash"></i>
                                 </button>
                             </div>
                         </div>
                     @empty
-                        <p class="text-muted">Belum ada video ditambahkan.</p>
+                        <p class="text-muted"></p>
                     @endforelse
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add Video Modal -->
-    <div class="modal fade" id="addVideoModal" tabindex="-1" aria-hidden="true">
+    <!-- Add Running Text Modal -->
+    <div class="modal fade" id="addRunningtextModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Video</h5>
+                    <h5 class="modal-title">Add New Running Text</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="videoForm" action="{{ route('admin.tgr.video.store') }}" method="POST"
-                    enctype="multipart/form-data">
+                <form id="runningtextForm" action="{{ route('admin.pb.runningtext.store') }}" method="POST">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Video Title</label>
-                            <input type="text" class="form-control" name="title" placeholder="Enter video title"
-                                required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Upload Video</label>
-                            <input type="file" class="form-control" name="video" accept="video/*" required>
-                            <small class="text-muted"><span class="text-danger">*</span> max size: 300MB</small>
-                            <div class="mt-2">
-                                <video id="videoPreview" controls class="w-100 d-none" style="max-height: 300px;">
-                                    <source src="#" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
+                            <label class="form-label">Running Text</label>
+                            <div class="d-flex align-items-start mb-1">
+                                <textarea id="runningTextInput" class="form-control" name="name" rows="3"
+                                    placeholder="Enter running text with emoji" required></textarea>
                             </div>
+                            <small class="text-muted">
+                                Tekan <kbd>Windows</kbd> + <kbd>.</kbd> atau <kbd>Windows</kbd> + <kbd>;</kbd> di keyboard
+                                untuk menambahkan emoji 😊
+                            </small>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Video</button>
+                        <button type="submit" class="btn btn-primary">Save Running Text</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Edit Video Modal -->
-    <div class="modal fade" id="editVideoModal" tabindex="-1" aria-hidden="true">
+    <!-- Edit Running Text Modal -->
+    <div class="modal fade" id="editRunningtextModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Video</h5>
+                    <h5 class="modal-title">Edit Running Text</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="editVideoForm" method="POST" enctype="multipart/form-data">
+                <form id="editRunningtextForm" method="POST">
                     @csrf
                     @method('PUT')
                     <div class="modal-body">
-                        <input type="hidden" name="id" id="editVideoId">
+                        <input type="hidden" name="id" id="editRunningtextId">
                         <div class="mb-3">
-                            <label class="form-label">Video Title</label>
-                            <input type="text" class="form-control" name="title" id="editVideoTitle" required>
-                        </div>
-                        <div class="mb-3">
-                            <label class="form-label">Video (leave empty to keep current)</label>
-                            <input type="file" class="form-control" name="video" accept="video/*">
-                            <small class="text-muted"><span class="text-danger">*</span> max size: 300MB</small>
-                            <div class="mt-2">
-                                <video id="editVideoPreview" class="img-fluid" style="max-height: 200px;" controls muted>
-                                    <source src="#" type="video/mp4">
-                                    Your browser does not support the video tag.
-                                </video>
+                            <label class="form-label">Running Text</label>
+                            <div class="d-flex align-items-start mb-1">
+                                <textarea id="editRunningtextName" class="form-control" name="name" rows="3"
+                                    placeholder="Enter running text with emoji" required></textarea>
                             </div>
+                            <small class="text-muted">
+                                Tekan <kbd>Windows</kbd> + <kbd>.</kbd> atau <kbd>Windows</kbd> + <kbd>;</kbd> di keyboard
+                                untuk menambahkan emoji 😊
+                            </small>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Update Video</button>
+                        <button type="submit" class="btn btn-primary">Update</button>
                     </div>
                 </form>
             </div>
@@ -172,7 +212,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
     <script>
-        // SUKSES DAN GAGAL KETIKA ADD VIDEO
+        // SUKSES DAN GAGAL KETIKA ADD BANNER
         @if (session('success'))
             Swal.fire({
                 icon: 'success',
@@ -181,14 +221,17 @@
                 showConfirmButton: true
             }).then((result) => {
                 if (result.isConfirmed) {
+                    // Refresh halaman setelah klik OK
                     location.reload();
                 }
             });
 
-            const modal = bootstrap.Modal.getInstance(document.getElementById('addVideoModal'));
+            // Jika pakai Bootstrap 5
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addBannerModal'));
             if (modal) modal.hide();
         @endif
 
+        // Handle Errors using SweetAlert
         @if ($errors->any())
             Swal.fire({
                 icon: 'error',
@@ -198,14 +241,15 @@
             });
         @endif
 
-        // URUTAN VIDEO
-        const sortable = Sortable.create(document.getElementById('videoList'), {
+        // URUTAN RUNNING TEXT
+        const sortable = new Sortable(document.getElementById('runningtextList'), {
             animation: 150,
             onUpdate: function(evt) {
-                const itemIds = Array.from(document.querySelectorAll('.video-item')).map(item => item.dataset
-                    .id);
+                const itemIds = Array.from(document.querySelectorAll('.runningtext-item')).map(item => item
+                    .dataset.id);
 
-                fetch("{{ route('admin.tgr.video.update-order') }}", { // Ganti route ke video
+                // Kirim urutan baru ke backend
+                fetch("{{ route('admin.pb.runningtext.update-order') }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -217,19 +261,19 @@
                     })
                     .then(response => response.json())
                     .then(data => {
-                        // Show success SweetAlert on successful order change
+                        // Tampilkan notifikasi sukses
                         Swal.fire({
                             toast: true,
-                            position: 'bottom-end',
+                            position: 'bottom-end', // Menampilkan di pojok bawah kanan
                             icon: 'success',
-                            title: 'Urutan video berhasil diubah!',
+                            title: 'Urutan running text berhasil diubah!',
                             showConfirmButton: false,
                             timer: 2000,
                             timerProgressBar: true
                         });
                     })
                     .catch(error => {
-                        // If there is an error during the update
+                        // Jika terjadi error saat pembaruan
                         Swal.fire({
                             icon: 'error',
                             title: 'Gagal!',
@@ -241,37 +285,22 @@
         });
     </script>
 
-    {{-- PREVIEW VIDEO --}}
-    <script>
-        document.querySelector('input[name="video"]').addEventListener('change', function(e) {
-            const file = e.target.files[0];
-            if (file && file.type.startsWith('video/')) {
-                const videoPreview = document.getElementById('videoPreview');
-                const source = videoPreview.querySelector('source');
-
-                source.src = URL.createObjectURL(file);
-                videoPreview.load();
-                videoPreview.classList.remove('d-none');
-            }
-        });
-    </script>
-
     {{-- TOOGLE STATUS ACTIVE DAN INACTIVE --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
             // Meng-handle klik tombol toggle status
             document.querySelectorAll('.toggle-status').forEach(button => {
                 button.addEventListener('click', function() {
-                    const videoId = this.getAttribute('data-id');
+                    const runningtextId = this.getAttribute('data-id');
 
-                    fetch("{{ route('admin.tgr.video.toggle-status') }}", {
+                    fetch("{{ route('admin.pb.runningtext.toggle-status') }}", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
                             body: JSON.stringify({
-                                id: videoId
+                                id: runningtextId
                             })
                         })
                         .then(response => response.json())
@@ -281,10 +310,11 @@
                             if (data.status === 'success' && typeof data.active !==
                                 'undefined') {
                                 // Ubah badge status dan icon
-                                const videoItem = document.querySelector(
-                                    `.video-item[data-id="${videoId}"]`);
-                                const badge = videoItem.querySelector('.status-badge');
-                                const toggleButton = videoItem.querySelector('.toggle-status');
+                                const runningtextItem = document.querySelector(
+                                    `.runningtext-item[data-id="${runningtextId}"]`);
+                                const badge = runningtextItem.querySelector('.status-badge');
+                                const toggleButton = runningtextItem.querySelector(
+                                    '.toggle-status');
 
                                 // Toggle the 'active' status
                                 if (data.active) {
@@ -308,8 +338,8 @@
                                     toast: true,
                                     position: 'bottom-end',
                                     icon: 'success',
-                                    title: data.active ? 'Video Activated' :
-                                        'Video Deactivated',
+                                    title: data.active ? 'Running Text Activated' :
+                                        'Running Text Deactivated',
                                     showConfirmButton: false,
                                     timer: 2000,
                                     timerProgressBar: true
@@ -337,45 +367,35 @@
         });
     </script>
 
-    {{-- EDIT VIDEO --}}
+    {{-- EDIT RUNNING TEXT --}}
     <script>
-        $(document).on('click', '.edit-video', function() {
-            const videoId = $(this).data('id');
-            $.get(`/admin/tgr/video/${videoId}/edit`, function(data) {
-                $('#editVideoId').val(data.id);
-                $('#editVideoTitle').val(data.name);
-                $('#editVideoPreview source').attr('src', `/storage/${data.video}`);
-                const videoElement = document.getElementById('editVideoPreview');
-                videoElement.load(); // <-- ini cara yang benar!
-                $('#editVideoForm').attr('action', `/admin/tgr/video/${videoId}`);
-                $('#editVideoModal').modal('show');
-            });
-        });
+        // --- definisi named-route template ---
+        const editTpl = "{{ route('admin.pb.runningtext.edit', ['id' => ':id']) }}";
+        const updateTpl = "{{ route('admin.pb.runningtext.update', ['id' => ':id']) }}";
 
-        // Update preview video saat upload file baru
-        $('#editVideoForm input[name="video"]').on('change', function() {
-            const file = this.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    $('#editVideoPreview source').attr('src', e.target.result);
-                    const videoElement = document.getElementById('editVideoPreview');
-                    videoElement.load(); // <-- ini cara yang benar!
-                };
-                reader.readAsDataURL(file);
-            }
+        // --- handler edit ---
+        $(document).on('click', '.edit-runningtext', function() {
+            const id = $(this).data('id');
+            const url = editTpl.replace(':id', id);
+
+            $.get(url, function(data) {
+                $('#editRunningtextId').val(data.id);
+                $('#editRunningtextName').val(data.name);
+                $('#editRunningtextForm')
+                    .attr('action', updateTpl.replace(':id', id));
+                $('#editRunningtextModal').modal('show');
+            });
         });
     </script>
 
-    {{-- DELETE VIDEO --}}
+    {{-- DELETE RUNNING TEXT --}}
     <script>
-        $(document).on('click', '.delete-video', function() {
-            const videoId = $(this).data('id');
+        $(document).on('click', '.delete-runningtext', function() {
+            const runningtextId = $(this).data('id');
 
-            // Konfirmasi dengan SweetAlert
             Swal.fire({
                 title: 'Are you sure?',
-                text: "The video will be permanently deleted!",
+                text: "This action cannot be undone!",
                 icon: 'warning',
                 showCancelButton: true,
                 confirmButtonText: 'Yes, delete it!',
@@ -383,8 +403,9 @@
                 reverseButtons: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Jika user konfirmasi, jalankan delete
-                    let deleteUrl = `{{ route('admin.tgr.video.delete', ':id') }}`.replace(':id', videoId);
+                    let deleteUrl = `{{ route('admin.pb.runningtext.delete', ':id') }}`.replace(':id',
+                        runningtextId);
+
                     $.ajax({
                         url: deleteUrl,
                         type: 'DELETE',
@@ -394,16 +415,16 @@
                         success: function(response) {
                             Swal.fire(
                                 'Deleted!',
-                                'The video has been deleted.',
+                                'Running text has been deleted.',
                                 'success'
                             );
-                            // Hapus elemen video dari halaman setelah berhasil
-                            $(`[data-id="${videoId}"]`).closest('.video-item').remove();
+                            $(`[data-id="${runningtextId}"]`).closest('.runningtext-item')
+                                .remove();
                         },
-                        error: function(xhr, status, error) {
+                        error: function() {
                             Swal.fire(
                                 'Failed!',
-                                'An error occurred while deleting the video.',
+                                'An error occurred while deleting the running text.',
                                 'error'
                             );
                         }

@@ -127,20 +127,20 @@
               <span class="menu-header-text">Pembangunan</span>
             </li>
 
-            <li class="menu-item">
-              <a href="cards-basic.html" class="menu-link">
+            <li class="menu-item {{ Route::is('admin.pb.banner') ? 'active' : '' }}">
+              <a href="{{ route('admin.pb.banner') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-image"></i>
                 <div data-i18n="Banner">Banner</div>
               </a>
             </li>
-            <li class="menu-item">
-              <a href="cards-basic.html" class="menu-link">
+            <li class="menu-item {{ Route::is('admin.pb.video') ? 'active' : '' }}">
+              <a href="{{ route('admin.pb.video') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-video"></i>
                 <div data-i18n="Video">Video</div>
               </a>
             </li>
-            <li class="menu-item">
-              <a href="cards-basic.html" class="menu-link">
+            <li class="menu-item {{ Route::is('admin.pb.runningtext') ? 'active' : '' }}">
+              <a href="{{ route('admin.pb.runningtext') }}" class="menu-link">
                 <i class="menu-icon tf-icons bx bx-text"></i>
                 <div data-i18n="Running Text">Running Text</div>
               </a>

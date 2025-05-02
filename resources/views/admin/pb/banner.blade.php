@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Banner TGR | Milenia Display')
+@section('title', 'Banner PB | Milenia Display')
 
 @section('css')
     <style>
@@ -96,7 +96,7 @@
                     <h5 class="modal-title">Add New Banner</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="bannerForm" action="{{ route('admin.tgr.banner.store') }}" method="POST"
+                <form id="bannerForm" action="{{ route('admin.pb.banner.store') }}" method="POST"
                     enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
@@ -201,7 +201,7 @@
                 const itemIds = Array.from(document.querySelectorAll('.banner-item')).map(item => item.dataset
                     .id);
 
-                fetch("{{ route('admin.tgr.banner.update-order') }}", {
+                fetch("{{ route('admin.pb.banner.update-order') }}", {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -256,7 +256,7 @@
                 button.addEventListener('click', function() {
                     const bannerId = this.getAttribute('data-id');
 
-                    fetch("{{ route('admin.tgr.banner.toggle-status') }}", {
+                    fetch("{{ route('admin.pb.banner.toggle-status') }}", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
@@ -333,13 +333,13 @@
     <script>
         $(document).on('click', '.edit-banner', function() {
             const bannerId = $(this).data('id');
-            $.get(`/admin/tgr/banner/${bannerId}/edit`, function(data) {
+            $.get(`/admin/pb/banner/${bannerId}/edit`, function(data) {
                 $('#editBannerId').val(data.id); // Menyimpan ID banner yang diedit
                 $('#editBannerTitle').val(data.name); // Menampilkan judul banner di form
                 $('#editImagePreview').attr('src', `/storage/${data.image}`).removeClass(
                 'd-none'); // Menampilkan preview gambar lama
                 $('#editBannerForm').attr('action',
-                `/admin/tgr/banner/${bannerId}`); // Menetapkan URL action form
+                `/admin/pb/banner/${bannerId}`); // Menetapkan URL action form
                 $('#editBannerModal').modal('show'); // Menampilkan modal
             });
         });
@@ -376,7 +376,7 @@
         }).then((result) => {
             if (result.isConfirmed) {
                 // Jika konfirmasi di-OK-kan, hapus data
-                let deleteUrl = `{{ route('admin.tgr.banner.delete', ':id') }}`.replace(':id', bannerId);
+                let deleteUrl = `{{ route('admin.pb.banner.delete', ':id') }}`.replace(':id', bannerId);
                 $.ajax({
                     url: deleteUrl,
                     type: 'DELETE',

@@ -1,10 +1,10 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Banner TGR | Milenia Display')
+@section('title', 'Video PB | Milenia Display')
 
 @section('css')
     <style>
-        .banner-item {
+        .video-item {
             transition: all 0.3s ease;
             border: 1px solid #e9ecef;
             border-radius: 8px;
@@ -14,12 +14,12 @@
             cursor: move;
         }
 
-        .banner-item:hover {
+        .video-item:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        .banner-thumbnail {
+        .video-thumbnail {
             height: 150px;
             object-fit: cover;
             border-radius: 4px;
@@ -43,117 +43,124 @@
     <div class="container-xxl flex-grow-1 container-p-y">
         <div class="card mb-4">
             <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Banner Management</h5>
-                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addBannerModal">
-                    <i class="bx bx-plus me-1"></i> Add Banner
+                <h5 class="mb-0">Video Management</h5>
+                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addVideoModal">
+                    <i class="bx bx-plus me-1"></i> Add Video
                 </button>
             </div>
             <div class="card-body">
-                <div id="bannerList" class="sortable-list">
-                    @forelse ($banners as $banner)
-                        <div class="banner-item d-flex align-items-center justify-content-between"
-                            data-id="{{ $banner->id }}">
+                <div id="videoList" class="sortable-list">
+                    @forelse ($videos as $video)
+                        <div class="video-item d-flex align-items-center justify-content-between"
+                            data-id="{{ $video->id }}">
                             <div class="d-flex align-items-center gap-3">
                                 <span class="handle"><i class="bx bx-menu"></i></span>
-                                <img src="{{ asset('storage/' . $banner->image) }}" class="banner-thumbnail" alt="Banner">
+
+                                <video width="150" class="rounded" controls muted>
+                                    <source src="{{ asset('storage/' . $video->video) }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
 
                                 <div class="d-flex flex-column">
-                                    <span class="text-muted">{{ $banner->name }}</span>
+                                    <span class="text-muted">{{ $video->name }}</span>
                                     <span
-                                        class="status-badge badge rounded-pill {{ $banner->active ? 'bg-success' : 'bg-danger' }} badge-sm">
-                                        {{ $banner->active ? 'Active' : 'Inactive' }}
+                                        class="status-badge badge rounded-pill {{ $video->active ? 'bg-success' : 'bg-danger' }} badge-sm">
+                                        {{ $video->active ? 'Active' : 'Inactive' }}
                                     </span>
                                 </div>
                             </div>
                             <div class="d-flex gap-2">
-                                <button
-                                    class="btn btn-sm toggle-status {{ $banner->active ? 'btn-danger' : 'btn-success' }}"
-                                    data-id="{{ $banner->id }}">
+                                <button class="btn btn-sm toggle-status {{ $video->active ? 'btn-danger' : 'btn-success' }}"
+                                    data-id="{{ $video->id }}">
                                     <i class="bx bx-power-off"></i>
                                 </button>
-                                <button class="btn btn-primary btn-sm edit-banner" data-id="{{ $banner->id }}"
-                                    data-title="{{ $banner->name }}" data-image="{{ asset('storage/' . $banner->image) }}">
+                                <button class="btn btn-primary btn-sm edit-video" data-id="{{ $video->id }}"
+                                    data-title="{{ $video->name }}" data-video="{{ asset('storage/' . $video->video) }}">
                                     <i class="bx bx-edit"></i>
                                 </button>
-                                <button class="btn btn-danger btn-sm delete-banner" data-id="{{ $banner->id }}">
+                                <button class="btn btn-danger btn-sm delete-video" data-id="{{ $video->id }}">
                                     <i class="bx bx-trash"></i>
                                 </button>
                             </div>
                         </div>
                     @empty
-                        <p class="text-muted">Belum ada banner ditambahkan.</p>
+                        <p class="text-muted">Belum ada video ditambahkan.</p>
                     @endforelse
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Add Banner Modal -->
-    <div class="modal fade" id="addBannerModal" tabindex="-1" aria-hidden="true">
+    <!-- Add Video Modal -->
+    <div class="modal fade" id="addVideoModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Add New Banner</h5>
+                    <h5 class="modal-title">Add New Video</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="bannerForm" action="{{ route('admin.tgr.banner.store') }}" method="POST"
+                <form id="videoForm" action="{{ route('admin.pb.video.store') }}" method="POST"
                     enctype="multipart/form-data">
                     @csrf
                     <div class="modal-body">
                         <div class="mb-3">
-                            <label class="form-label">Banner Title</label>
-                            <input type="text" class="form-control" name="title" placeholder="Enter banner title"
+                            <label class="form-label">Video Title</label>
+                            <input type="text" class="form-control" name="title" placeholder="Enter video title"
                                 required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Banner Image</label>
-                            <input type="file" class="form-control" name="image" accept="image/*" required>
-                            <small class="text-muted"><span class="text-danger">*</span> max size: 10MB</small>
+                            <label class="form-label">Upload Video</label>
+                            <input type="file" class="form-control" name="video" accept="video/*" required>
+                            <small class="text-muted"><span class="text-danger">*</span> max size: 300MB</small>
                             <div class="mt-2">
-                                <img id="imagePreview" src="#" alt="Preview" class="img-fluid d-none"
-                                    style="max-height: 200px;">
+                                <video id="videoPreview" controls class="w-100 d-none" style="max-height: 300px;">
+                                    <source src="#" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Save Banner</button>
+                        <button type="submit" class="btn btn-primary">Save Video</button>
                     </div>
                 </form>
             </div>
         </div>
     </div>
 
-    <!-- Edit Banner Modal -->
-    <div class="modal fade" id="editBannerModal" tabindex="-1" aria-hidden="true">
+    <!-- Edit Video Modal -->
+    <div class="modal fade" id="editVideoModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Edit Banner</h5>
+                    <h5 class="modal-title">Edit Video</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <form id="editBannerForm" method="POST" enctype="multipart/form-data">
+                <form id="editVideoForm" method="POST" enctype="multipart/form-data">
                     @csrf
                     @method('PUT')
                     <div class="modal-body">
-                        <input type="hidden" name="id" id="editBannerId">
+                        <input type="hidden" name="id" id="editVideoId">
                         <div class="mb-3">
-                            <label class="form-label">Banner Title</label>
-                            <input type="text" class="form-control" name="title" id="editBannerTitle" required>
+                            <label class="form-label">Video Title</label>
+                            <input type="text" class="form-control" name="title" id="editVideoTitle" required>
                         </div>
                         <div class="mb-3">
-                            <label class="form-label">Banner Image (leave empty to keep current)</label>
-                            <input type="file" class="form-control" name="image" accept="image/*">
-                            <small class="text-muted"><span class="text-danger">*</span> max size: 10MB</small>
+                            <label class="form-label">Video (leave empty to keep current)</label>
+                            <input type="file" class="form-control" name="video" accept="video/*">
+                            <small class="text-muted"><span class="text-danger">*</span> max size: 300MB</small>
                             <div class="mt-2">
-                                <img id="editImagePreview" src="#" alt="Preview" class="img-fluid"
-                                    style="max-height: 200px;">
+                                <video id="editVideoPreview" class="img-fluid" style="max-height: 200px;" controls muted>
+                                    <source src="#" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="submit" class="btn btn-primary">Update Banner</button>
+                        <button type="submit" class="btn btn-primary">Update Video</button>
                     </div>
                 </form>
             </div>
@@ -165,7 +172,7 @@
     <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js"></script>
 
     <script>
-        // SUKSES DAN GAGAL KETIKA ADD BANNER
+        // SUKSES DAN GAGAL KETIKA ADD VIDEO
         @if (session('success'))
             Swal.fire({
                 icon: 'success',
@@ -174,17 +181,14 @@
                 showConfirmButton: true
             }).then((result) => {
                 if (result.isConfirmed) {
-                    // Refresh halaman setelah klik OK
                     location.reload();
                 }
             });
 
-            // Jika pakai Bootstrap 5
-            const modal = bootstrap.Modal.getInstance(document.getElementById('addBannerModal'));
+            const modal = bootstrap.Modal.getInstance(document.getElementById('addVideoModal'));
             if (modal) modal.hide();
         @endif
 
-        // Handle Errors using SweetAlert
         @if ($errors->any())
             Swal.fire({
                 icon: 'error',
@@ -194,14 +198,14 @@
             });
         @endif
 
-        // URUTAN BANNER
-        const sortable = Sortable.create(document.getElementById('bannerList'), {
+        // URUTAN VIDEO
+        const sortable = Sortable.create(document.getElementById('videoList'), {
             animation: 150,
             onUpdate: function(evt) {
-                const itemIds = Array.from(document.querySelectorAll('.banner-item')).map(item => item.dataset
+                const itemIds = Array.from(document.querySelectorAll('.video-item')).map(item => item.dataset
                     .id);
 
-                fetch("{{ route('admin.tgr.banner.update-order') }}", {
+                fetch("{{ route('admin.pb.video.update-order') }}", { // Ganti route ke video
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -216,9 +220,9 @@
                         // Show success SweetAlert on successful order change
                         Swal.fire({
                             toast: true,
-                            position: 'bottom-end', // Display at the bottom right
+                            position: 'bottom-end',
                             icon: 'success',
-                            title: 'Urutan banner berhasil diubah!',
+                            title: 'Urutan video berhasil diubah!',
                             showConfirmButton: false,
                             timer: 2000,
                             timerProgressBar: true
@@ -235,16 +239,20 @@
                     });
             }
         });
+    </script>
 
-        // IMAGE PREVIEW DI MODAL ADD BANNER
-        document.querySelector('input[name="image"]').addEventListener('change', function(e) {
-            const reader = new FileReader();
-            reader.onload = function() {
-                const preview = document.getElementById('imagePreview');
-                preview.src = reader.result;
-                preview.classList.remove('d-none');
-            };
-            reader.readAsDataURL(e.target.files[0]);
+    {{-- PREVIEW VIDEO --}}
+    <script>
+        document.querySelector('input[name="video"]').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file && file.type.startsWith('video/')) {
+                const videoPreview = document.getElementById('videoPreview');
+                const source = videoPreview.querySelector('source');
+
+                source.src = URL.createObjectURL(file);
+                videoPreview.load();
+                videoPreview.classList.remove('d-none');
+            }
         });
     </script>
 
@@ -254,16 +262,16 @@
             // Meng-handle klik tombol toggle status
             document.querySelectorAll('.toggle-status').forEach(button => {
                 button.addEventListener('click', function() {
-                    const bannerId = this.getAttribute('data-id');
+                    const videoId = this.getAttribute('data-id');
 
-                    fetch("{{ route('admin.tgr.banner.toggle-status') }}", {
+                    fetch("{{ route('admin.pb.video.toggle-status') }}", {
                             method: 'POST',
                             headers: {
                                 'Content-Type': 'application/json',
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
                             body: JSON.stringify({
-                                id: bannerId
+                                id: videoId
                             })
                         })
                         .then(response => response.json())
@@ -273,10 +281,10 @@
                             if (data.status === 'success' && typeof data.active !==
                                 'undefined') {
                                 // Ubah badge status dan icon
-                                const bannerItem = document.querySelector(
-                                    `.banner-item[data-id="${bannerId}"]`);
-                                const badge = bannerItem.querySelector('.status-badge');
-                                const toggleButton = bannerItem.querySelector('.toggle-status');
+                                const videoItem = document.querySelector(
+                                    `.video-item[data-id="${videoId}"]`);
+                                const badge = videoItem.querySelector('.status-badge');
+                                const toggleButton = videoItem.querySelector('.toggle-status');
 
                                 // Toggle the 'active' status
                                 if (data.active) {
@@ -300,8 +308,8 @@
                                     toast: true,
                                     position: 'bottom-end',
                                     icon: 'success',
-                                    title: data.active ? 'Banner Activated' :
-                                        'Banner Deactivated',
+                                    title: data.active ? 'Video Activated' :
+                                        'Video Deactivated',
                                     showConfirmButton: false,
                                     timer: 2000,
                                     timerProgressBar: true
@@ -329,80 +337,80 @@
         });
     </script>
 
-    {{-- EDIT BANNER --}}
+    {{-- EDIT VIDEO --}}
     <script>
-        $(document).on('click', '.edit-banner', function() {
-            const bannerId = $(this).data('id');
-            $.get(`/admin/tgr/banner/${bannerId}/edit`, function(data) {
-                $('#editBannerId').val(data.id); // Menyimpan ID banner yang diedit
-                $('#editBannerTitle').val(data.name); // Menampilkan judul banner di form
-                $('#editImagePreview').attr('src', `/storage/${data.image}`).removeClass(
-                'd-none'); // Menampilkan preview gambar lama
-                $('#editBannerForm').attr('action',
-                `/admin/tgr/banner/${bannerId}`); // Menetapkan URL action form
-                $('#editBannerModal').modal('show'); // Menampilkan modal
+        $(document).on('click', '.edit-video', function() {
+            const videoId = $(this).data('id');
+            $.get(`/admin/pb/video/${videoId}/edit`, function(data) {
+                $('#editVideoId').val(data.id);
+                $('#editVideoTitle').val(data.name);
+                $('#editVideoPreview source').attr('src', `/storage/${data.video}`);
+                const videoElement = document.getElementById('editVideoPreview');
+                videoElement.load(); // <-- ini cara yang benar!
+                $('#editVideoForm').attr('action', `/admin/pb/video/${videoId}`);
+                $('#editVideoModal').modal('show');
             });
         });
 
-        // Event listener untuk mengganti preview gambar saat memilih file baru
-        $('#editBannerForm input[name="image"]').on('change', function() {
+        // Update preview video saat upload file baru
+        $('#editVideoForm input[name="video"]').on('change', function() {
             const file = this.files[0];
             if (file) {
-                // Membaca gambar baru menggunakan FileReader
                 const reader = new FileReader();
                 reader.onload = function(e) {
-                    $('#editImagePreview').attr('src', e.target
-                    .result); // Ganti preview dengan gambar yang baru dipilih
+                    $('#editVideoPreview source').attr('src', e.target.result);
+                    const videoElement = document.getElementById('editVideoPreview');
+                    videoElement.load(); // <-- ini cara yang benar!
                 };
-                reader.readAsDataURL(file); // Membaca file dan menyiapkan gambar untuk ditampilkan
+                reader.readAsDataURL(file);
             }
         });
     </script>
 
-    {{-- DELETE BANNER --}}
+    {{-- DELETE VIDEO --}}
     <script>
-    $(document).on('click', '.delete-banner', function () {
-        const bannerId = $(this).data('id');
-        
-        // Konfirmasi dengan SweetAlert
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This action cannot be undone!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Jika konfirmasi di-OK-kan, hapus data
-                let deleteUrl = `{{ route('admin.tgr.banner.delete', ':id') }}`.replace(':id', bannerId);
-                $.ajax({
-                    url: deleteUrl,
-                    type: 'DELETE',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                    },
-                    success: function (response) {
-                        Swal.fire(
-                            'Deleted!',
-                            'The banner has been deleted.',
-                            'success'
-                        );
-                        // Menghapus elemen banner dari halaman setelah dihapus
-                        $(`[data-id="${bannerId}"]`).closest('.banner-item').remove();
-                    },
-                    error: function (xhr, status, error) {
-                        Swal.fire(
-                            'Failed!',
-                            'An error occurred while deleting the banner.',
-                            'error'
-                        );
-                    }
-                });
-            }
+        $(document).on('click', '.delete-video', function() {
+            const videoId = $(this).data('id');
+
+            // Konfirmasi dengan SweetAlert
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "The video will be permanently deleted!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Jika user konfirmasi, jalankan delete
+                    let deleteUrl = `{{ route('admin.pb.video.delete', ':id') }}`.replace(':id', videoId);
+                    $.ajax({
+                        url: deleteUrl,
+                        type: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                        },
+                        success: function(response) {
+                            Swal.fire(
+                                'Deleted!',
+                                'The video has been deleted.',
+                                'success'
+                            );
+                            // Hapus elemen video dari halaman setelah berhasil
+                            $(`[data-id="${videoId}"]`).closest('.video-item').remove();
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire(
+                                'Failed!',
+                                'An error occurred while deleting the video.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
         });
-    });
-</script>
+    </script>
 
 @endsection

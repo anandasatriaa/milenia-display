@@ -1,6 +1,6 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Running Text | Milenia Display')
+@section('title', 'Running Text TGR | Milenia Display')
 
 @section('css')
     <style>

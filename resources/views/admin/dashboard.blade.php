@@ -29,14 +29,17 @@
             <div class="col-12">
                 <div class="card shadow-lg">
                     <div
-                        class="card-header d-flex justify-content-between align-items-center bg-light border-bottom border-top border-success border-3">
+                        class="card-header d-flex justify-content-between align-items-center bg-light">
                         <div class="d-flex align-items-center">
-                            <h5 class="m-0">Preview PB</h5>
+                            <h5 class="m-0">Preview Display Pembangunan</h5>
                             <span id="pb-badge" class="badge bg-danger ms-2 d-none">
                                 <i class="bx bx-error-circle me-1"></i>Gagal Memuat
                             </span>
                         </div>
                         <div>
+                            <span class="text-muted small me-2">
+                                Jika terjadi error, lakukan refresh pada tombol berikut
+                            </span>
                             <button onclick="refreshIframe('pb-iframe')" class="btn btn-sm btn-outline-secondary me-2">
                                 <i class="bx bx-refresh"></i>
                             </button>
@@ -56,14 +59,17 @@
             <div class="col-12">
                 <div class="card shadow-lg">
                     <div
-                        class="card-header d-flex justify-content-between align-items-center bg-light border-bottom border-top border-primary border-3">
+                        class="card-header d-flex justify-content-between align-items-center bg-light">
                         <div class="d-flex align-items-center">
-                            <h5 class="m-0">Preview TGR</h5>
+                            <h5 class="m-0">Preview Display Tigaraksa</h5>
                             <span id="tgr-badge" class="badge bg-danger ms-2 d-none">
                                 <i class="bx bx-error-circle me-1"></i>Gagal Memuat
                             </span>
                         </div>
                         <div>
+                            <span class="text-muted small me-2">
+                                Jika terjadi error, lakukan refresh pada tombol berikut
+                            </span>
                             <button onclick="refreshIframe('tgr-iframe')" class="btn btn-sm btn-outline-secondary me-2">
                                 <i class="bx bx-refresh"></i>
                             </button>

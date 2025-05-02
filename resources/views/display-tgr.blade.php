@@ -641,6 +641,13 @@
 
         videoCurrent.addEventListener("ended", switchVideo);
     </script>
+
+    {{-- Refresh setiap 30 menit --}}
+    <script>
+        setInterval(() => {
+            location.reload();
+        }, 30 * 60 * 1000); // 30 menit = 30 x 60 x 1000 ms = 1.800.000 ms
+    </script>
 </body>
 
 </html>

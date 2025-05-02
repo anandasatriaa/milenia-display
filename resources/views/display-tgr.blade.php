@@ -348,7 +348,7 @@
             display: inline-block;
             white-space: nowrap;
             /* padding-left: 40%; */
-            animation: marquee 20s linear infinite;
+            animation: marquee 30s linear infinite;
             font-size: 1.5rem;
             color: #fff;
         }

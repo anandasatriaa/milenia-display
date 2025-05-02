@@ -78,7 +78,10 @@
 
                                         $clientIp = request()->ip();
 
-                                        if ($clientIp === '127.0.0.1' || \Illuminate\Support\Str::startsWith($clientIp, '192.168.0.')) {
+                                        if (
+                                            $clientIp === '127.0.0.1' ||
+                                            \Illuminate\Support\Str::startsWith($clientIp, '192.168.0.')
+                                        ) {
                                             $baseUrl = 'http://192.168.0.8/hrd-milenia/foto/';
                                         } else {
                                             $baseUrl = 'http://pc.dyndns-office.com:8001/hrd-milenia/foto/';
@@ -88,7 +91,8 @@
                                     @endphp
 
                                     <div class="d-flex align-items-center gap-2 my-1">
-                                        <img src="{{ $fotoUrl }}" alt="{{ $absen->Nama }}" class="rounded-circle" width="35" height="35" style="object-fit: cover;">
+                                        <img src="{{ $fotoUrl }}" alt="{{ $absen->Nama }}" class="rounded-circle"
+                                            width="35" height="35" style="object-fit: cover;">
                                         <span class="text-muted">
                                             {{ $absen->Nama }} : {{ \Carbon\Carbon::parse($absen->jam)->format('H:i') }}
                                         </span>
@@ -365,12 +369,20 @@
 
     {{-- EDIT RUNNING TEXT --}}
     <script>
+        // --- definisi named-route template ---
+        const editTpl = "{{ route('admin.tgr.runningtext.edit', ['id' => ':id']) }}";
+        const updateTpl = "{{ route('admin.tgr.runningtext.update', ['id' => ':id']) }}";
+
+        // --- handler edit ---
         $(document).on('click', '.edit-runningtext', function() {
-            const runningtextId = $(this).data('id');
-            $.get(`/admin/tgr/runningtext/${runningtextId}/edit`, function(data) {
+            const id = $(this).data('id');
+            const url = editTpl.replace(':id', id);
+
+            $.get(url, function(data) {
                 $('#editRunningtextId').val(data.id);
                 $('#editRunningtextName').val(data.name);
-                $('#editRunningtextForm').attr('action', `/admin/tgr/runningtext/${runningtextId}`);
+                $('#editRunningtextForm')
+                    .attr('action', updateTpl.replace(':id', id));
                 $('#editRunningtextModal').modal('show');
             });
         });

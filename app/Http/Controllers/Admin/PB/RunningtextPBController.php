@@ -18,7 +18,7 @@ class RunningtextPBController extends Controller
         $keterlambatan = DB::connection('dbhrd') // Koneksi ke database dbhrd
             ->table('absen_mesin')
             ->join('trkaryawan', 'absen_mesin.pin', '=', 'trkaryawan.IDMesin') // Tabel trkaryawan dari database dbhrd
-            ->where('trkaryawan.Cabang', 'TIGARAKSA') // Tambahkan kondisi Cabang = TIGARAKSA
+            ->where('trkaryawan.Cabang', 'PEMBANGUNAN') // Tambahkan kondisi Cabang = PEMBANGUNAN
             ->where('trkaryawan.Aktif', 1)
             ->whereRaw('TIME(absen_mesin.jam) > absen_mesin.jammasuk') // Membandingkan jam masuk dengan jam yang diatur
             ->whereDate('absen_mesin.tanggal', '=', \Carbon\Carbon::today()->format('Y-m-d')) // Filter untuk hari ini

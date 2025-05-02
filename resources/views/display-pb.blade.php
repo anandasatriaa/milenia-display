@@ -437,7 +437,7 @@
                 <div>
                     <h1 class="company-name">MILENIA GROUP</h1>
                     <p class="company-address">
-                        Jl. Pembangunan I No.1 3, RT.3/RW.1, Petojo Utara, <br> Kecamatan Gambir, Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10130
+                        Jl. Pembangunan I No.1 3, RT.3/RW.1, Petojo Utara, Kecamatan Gambir, <br> Kota Jakarta Pusat, Daerah Khusus Ibukota Jakarta 10130
                     </p>
                 </div>
             </div>

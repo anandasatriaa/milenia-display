@@ -16,7 +16,11 @@ class DisplayTGRController extends Controller
             ->where('active', 1)
             ->where('type', 'tgr')
             ->orderBy('order')
-            ->get();
+            ->get()
+            ->map(function ($banner) {
+                $banner->image_url = asset('storage/' . $banner->image);
+                return $banner;
+            });
 
         $videos = DB::table('videos')
             ->where('active', 1)
@@ -47,28 +51,37 @@ class DisplayTGRController extends Controller
             ? 'http://192.168.0.8/hrd-milenia/foto/'
             : 'http://pc.dyndns-office.com:8001/hrd-milenia/foto/';
 
-        if (count($keterlambatan) > 0) {
-            $textKeterlambatan .= "Keterlambatan Hari {$hariIni}: ";
-
-            foreach ($keterlambatan as $item) {
-                $formattedFoto = str_pad($item->ID, 5, '0', STR_PAD_LEFT);
-                $fotoUrl = $baseUrl . "{$formattedFoto}.JPG";
-
-                $textKeterlambatan .= "<img src='{$fotoUrl}' alt='Foto {$item->Nama}' width='40' height='40' style='border-radius:50%; vertical-align:middle; margin-right:6px;'> ";
-                $textKeterlambatan .= "{$item->Nama} ({$item->jam}) | ";
+            if (count($keterlambatan) > 0) {
+                $textKeterlambatan .= "⏰ Keterlambatan Hari {$hariIni}: ";
+            
+                foreach ($keterlambatan as $item) {
+                    $formattedFoto = str_pad($item->ID, 5, '0', STR_PAD_LEFT);
+                    $fotoUrl = $baseUrl . "{$formattedFoto}.JPG";
+            
+                    $textKeterlambatan .= "<img src='{$fotoUrl}' alt='Foto {$item->Nama}' width='40' height='40' style='border-radius:50%; vertical-align:middle; margin-right:6px;'> ";
+                    $textKeterlambatan .= "{$item->Nama} ({$item->jam}) | ";
+                }
+            
+                $textKeterlambatan = rtrim($textKeterlambatan, '| ') . " ⏰"; // Tambahkan ⏰ akhir
             }
-        }
-
-        // Ambil data running text dari DB
-        $runningTexts = DB::table('runningtexts')
-            ->where('active', 1)
-            ->where('type', 'tgr')
-            ->orderBy('order')
-            ->pluck('name')
-            ->toArray();
-
-        // Gabungkan semua teks menjadi satu string
-        $fullRunningText = $textKeterlambatan . implode(' | ', $runningTexts);
+            
+            // Ambil data running text dari DB
+            $runningTexts = DB::table('runningtexts')
+                ->where('active', 1)
+                ->where('type', 'tgr')
+                ->orderBy('order')
+                ->pluck('name')
+                ->toArray();
+            
+            // Tambahkan emoji 📌 di awal dan akhir setiap item dari runningtexts
+            $formattedRunningTexts = array_map(function ($text) {
+                return "📌 {$text} 📌";
+            }, $runningTexts);
+            
+            // Gabungkan semua teks menjadi satu string dengan jarak yang jauh
+            $separatorGap = str_repeat('&nbsp;', 50) . '' . str_repeat('&nbsp;', 50); // Jarak panjang setelah keterlambatan
+            $internalGap = str_repeat('&nbsp;', 50); // Jarak antar teks running
+            $fullRunningText = $textKeterlambatan . $separatorGap . implode(" {$internalGap}{$internalGap} ", $formattedRunningTexts);
 
         return view('display-tgr', compact('banners', 'videos', 'fullRunningText'));
     }

@@ -67,7 +67,7 @@
 
         .company-name {
             line-height: 1;
-            font-size: 3rem;
+            font-size: 2.8rem;
             font-weight: 600;
             background: linear-gradient(45deg, var(--primary-color), var(--secondary-color));
             -webkit-background-clip: text;
@@ -77,7 +77,6 @@
         .company-address {
             font-size: 0.7rem;
             color: var(--text-light);
-            /* max-width: 400px; */
             line-height: 1.4;
         }
 
@@ -101,7 +100,7 @@
             display: inline-block;
             width: 6ch;
             text-align: center;
-            margin-right: 15px;
+            margin-right: 10px;
         }
 
         .live-status {
@@ -162,7 +161,7 @@
             border: 2px solid linear-gradient(135deg, #696cff, #d46fff);
             border-radius: 10px;
             padding: 0.3rem 0.3rem;
-            width: 42vw;
+            width: 36vw;
             min-width: 200px;
             margin: 0 auto;
             overflow: hidden;
@@ -212,12 +211,7 @@
             justify-content: center;
             position: relative;
             overflow: hidden;
-        }
-
-        .event-image {
-            width:42vw;
-            height:auto;
-            border-radius: 10px;
+            /* margin-top: 10px; */
         }
 
         .event-banner::before {
@@ -234,12 +228,64 @@
             transform: rotate(20deg);
             animation: shimmer 2.5s infinite linear;
             pointer-events: none;
+            z-index: 2;
         }
 
-        .video-container {
+        .event-image-wrapper {
+            position: relative;
+            width: 36vw;
+            height: auto;
             display: flex;
             align-items: center;
             justify-content: center;
+        }
+
+        .event-image {
+            position: absolute;
+            width: 100%;
+            border-radius: 10px;
+            will-change: transform, opacity;
+            overflow: hidden;
+        }
+
+        /* Keyframes untuk keluar ke kiri */
+        @keyframes slideOutLeft {
+            to {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+        }
+
+        /* Keyframes untuk masuk dari kiri ke kanan */
+        @keyframes slideInLeft {
+            from {
+                transform: translateX(-100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Kelas pembantu */
+        .slide-out {
+            animation: slideOutLeft 0.6s ease-in-out forwards;
+        }
+
+        .slide-in {
+            animation: slideInLeft 0.6s ease-in-out forwards;
+        }
+
+        .video-container {
+            position: relative;
+            width: 39vw;
+            height: auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
             animation: slideLeft 1s ease-out;
         }
 
@@ -249,9 +295,41 @@
         }
 
         .video-player {
-            width: 45vw;
+            position: absolute;
+            width: 100%;
             height: auto;
             border-radius: 10px;
+            transition: opacity 0.5s ease-in-out;
+            will-change: transform, opacity;
+        }
+
+        /* Slide keluar ke kanan */
+        @keyframes slideOutRight {
+            to {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+        }
+
+        /* Slide masuk dari kanan */
+        @keyframes slideInLeftVideo {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        .slide-out-right {
+            animation: slideOutRight 0.6s ease-in-out forwards;
+        }
+
+        .slide-in-left {
+            animation: slideInLeftVideo 0.6s ease-in-out forwards;
         }
 
         .running {
@@ -264,7 +342,7 @@
         .running-text {
             display: inline-block;
             white-space: nowrap;
-            padding-left: 30%;
+            /* padding-left: 40%; */
             animation: marquee 20s linear infinite;
             font-size: 1.5rem;
             color: #fff;
@@ -354,7 +432,8 @@
                 <div>
                     <h1 class="company-name">MILENIA GROUP</h1>
                     <p class="company-address">
-                        Jl. Pemda Tigaraksa Kp.Ciapus Indah, RT.04/RW.02, Budi Mulya, Kec. Cikupa, Kabupaten Tangerang,
+                        Jl. Pemda Tigaraksa Kp.Ciapus Indah, RT.04/RW.02, Budi Mulya, <br> Kec. Cikupa, Kabupaten
+                        Tangerang,
                         Banten 15710
                     </p>
                 </div>
@@ -381,17 +460,19 @@
                 </div>
                 <!-- Banner/Event Image -->
                 <div class="event-banner">
-                    <img id="eventImage" src="{{ asset('storage/' . $banners->first()->image) }}" class="event-image" />
+                    <div class="event-image-wrapper">
+                        <!-- gambar sekarang -->
+                        <img id="bannerCurrent" src="{{ asset('storage/' . $banners->first()->image) }}"
+                            class="event-image" />
+                        <!-- gambar pengganti (kosong di awal) -->
+                        <img id="bannerNext" class="event-image" style="opacity:0" />
+                    </div>
                 </div>
             </div>
             <!-- Video -->
             <div class="video-container">
-                @if ($videos->isNotEmpty())
-                    <video id="videoPlayer" class="video-player" autoplay muted playsinline controls>
-                        <source src="{{ asset('storage/' . $videos->first()->video) }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                @endif
+                <video id="videoCurrent" class="video-player" autoplay></video>
+                <video id="videoNext" class="video-player" style="opacity: 0;"></video>
             </div>
         </div>
 
@@ -412,7 +493,12 @@
                 month: 'long',
                 day: 'numeric'
             };
-            document.getElementById('header-time').textContent = now.toLocaleTimeString();
+            document.getElementById('header-time').textContent = now.toLocaleTimeString('id-ID', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            });
             document.getElementById('header-date').textContent = now.toLocaleDateString('id-ID', opts);
         }
         setInterval(updateTime, 1000);
@@ -421,33 +507,134 @@
 
     <!-- BANNER & VIDEO -->
     <script>
-        const banners = @json($banners->pluck('image')->map(fn($img) => asset('storage/' . $img)));
-        const videos = @json($videos->pluck('video')->map(fn($vid) => asset('storage/' . $vid)));
-    </script>
-    <script>
         // Gambar
         let bannerIndex = 0;
-        const bannerImg = document.getElementById("eventImage");
+        const banners = @json($banners->pluck('image_url'));
+        const curr = document.getElementById("bannerCurrent");
+        const next = document.getElementById("bannerNext");
 
         function switchBanner() {
-            bannerIndex = (bannerIndex + 1) % banners.length;
-            bannerImg.src = banners[bannerIndex];
+            const newIndex = (bannerIndex + 1) % banners.length;
+
+            // 1) Start slide-out pada curr
+            curr.classList.add('slide-out');
+
+            // 2) Tunggu sampai slide-out selesai
+            curr.addEventListener('animationend', function onOut() {
+                curr.removeEventListener('animationend', onOut);
+
+                // 3) Setup gambar baru
+                next.src = banners[newIndex];
+                next.style.opacity = '1';
+                // pastikan mulai dari off-screen kiri
+                next.style.transform = 'translateX(-100%)';
+
+                // 4) Mulai slide-in
+                next.classList.add('slide-in');
+
+                next.addEventListener('animationend', function onIn() {
+                    next.removeEventListener('animationend', onIn);
+
+                    // 5) Reset state: gambar baru jadi current
+                    curr.classList.remove('slide-out');
+                    next.classList.remove('slide-in');
+
+                    curr.src = next.src;
+                    next.style.opacity = '0';
+                    next.style.transform = '';
+
+                    bannerIndex = newIndex;
+                }, {
+                    once: true
+                });
+
+            }, {
+                once: true
+            });
         }
 
-        setInterval(switchBanner, 10000); // Setiap 10 detik
+        // jalankan setiap 10 detik
+        setInterval(switchBanner, 10000);
+
 
         // Video
+        const videos = @json($videos->pluck('video')->map(fn($vid) => asset('storage/' . $vid)));
         let videoIndex = 0;
-        const videoPlayer = document.getElementById("videoPlayer");
 
-        function switchVideo() {
-            videoIndex = (videoIndex + 1) % videos.length;
-            videoPlayer.src = videos[videoIndex];
-            videoPlayer.load();
-            videoPlayer.play();
+        const videoCurrent = document.getElementById("videoCurrent");
+        const videoNext = document.getElementById("videoNext");
+
+        function playVideoWithSound(videoElement) {
+            videoElement.muted = false;
+            videoElement.volume = 1;
+
+            const playPromise = videoElement.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(() => {
+                    const notice = document.createElement('div');
+                    notice.textContent = "🔊 Klik di mana saja untuk memulai video dengan suara";
+                    notice.style.position = 'fixed';
+                    notice.style.top = '5%';
+                    notice.style.left = '50%';
+                    notice.style.transform = 'translateX(-50%)';
+                    notice.style.zIndex = 9999;
+                    notice.style.padding = '15px 30px';
+                    notice.style.fontSize = '1.2rem';
+                    notice.style.borderRadius = '8px';
+                    notice.style.backgroundColor = '#696cff';
+                    notice.style.color = 'white';
+                    notice.style.boxShadow = '0 4px 12px rgba(0, 0, 0, 0.2)';
+                    notice.style.pointerEvents = 'none'; // agar tidak menghalangi klik
+                    document.body.appendChild(notice);
+
+                    const resumeHandler = () => {
+                        videoElement.play();
+                        notice.remove();
+                        document.body.removeEventListener('click', resumeHandler);
+                    };
+
+                    // Dengarkan klik di mana saja
+                    document.body.addEventListener('click', resumeHandler);
+                });
+            }
         }
 
-        videoPlayer.addEventListener("ended", switchVideo);
+        videoCurrent.src = videos[videoIndex];
+        videoCurrent.load();
+        playVideoWithSound(videoCurrent);
+
+        function switchVideo() {
+            const nextIndex = (videoIndex + 1) % videos.length;
+
+            // Setup videoNext
+            videoNext.src = videos[nextIndex];
+            videoNext.muted = false;
+            videoNext.volume = 1;
+            videoNext.style.opacity = '1';
+            videoNext.classList.add('slide-in-left');
+
+            // Slide out current
+            videoCurrent.classList.add('slide-out-right');
+
+            videoNext.addEventListener("animationend", function onIn() {
+                videoNext.removeEventListener("animationend", onIn);
+
+                // Reset class
+                videoCurrent.classList.remove('slide-out-right');
+                videoNext.classList.remove('slide-in-left');
+
+                // Tukar posisi
+                videoCurrent.src = videoNext.src;
+                playVideoWithSound(videoCurrent);
+                videoNext.style.opacity = '0';
+
+                videoIndex = nextIndex;
+            }, {
+                once: true
+            });
+        }
+
+        videoCurrent.addEventListener("ended", switchVideo);
     </script>
 </body>
 

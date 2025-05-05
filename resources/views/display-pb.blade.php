@@ -347,8 +347,11 @@
         .running-text {
             display: inline-block;
             white-space: nowrap;
-            /* padding-left: 40%; */
-            animation: marquee 30s linear infinite;
+            animation-name: marquee;
+            animation-timing-function: linear;
+            animation-iteration-count: infinite;
+            animation-duration: var(--marquee-duration, 40s);
+            animation-delay: -27s;
             font-size: 1.5rem;
             color: #fff;
         }
@@ -638,6 +641,26 @@
         }
 
         videoCurrent.addEventListener("ended", switchVideo);
+    </script>
+
+    {{-- RUNNING TEXT DURATION --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.running');
+            const textEl = container.querySelector('.running-text');
+            const speed = 100; // piksel per detik yang diinginkan
+
+            // hitung lebar
+            const containerWidth = container.clientWidth;
+            const textWidth = textEl.scrollWidth;
+            const totalDistance = containerWidth + textWidth;
+
+            // durasi dalam detik
+            const durationSec = totalDistance / speed;
+
+            // set ke CSS custom property (tambahkan 's' supaya valid waktu)
+            textEl.style.setProperty('--marquee-duration', durationSec + 's');
+        });
     </script>
 
     {{-- Refresh setiap 30 menit --}}

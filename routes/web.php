@@ -16,8 +16,10 @@ Route::get('/', function () {
 })->name('home');
 
 Route::get('/tgr', [DisplayTGRController::class, 'index'])->name('tgr');
+Route::get('/tgr/last-update', [DisplayTGRController::class, 'lastUpdate'])->name('tgr.last-update');
 
 Route::get('/pb', [DisplayPBController::class, 'index'])->name('pb');
+Route::get('/pb/last-update', [DisplayPBController::class, 'lastUpdate'])->name('pb.last-update');
 
 
 Route::get('/login', [LoginController::class, 'showLoginForm'])->name('login');

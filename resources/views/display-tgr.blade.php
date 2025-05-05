@@ -492,6 +492,7 @@
         </div>
     </div>
 
+    {{-- FORMAT WAKTU --}}
     <script>
         function updateTime() {
             const now = new Date();
@@ -665,12 +666,83 @@
         });
     </script>
 
-    {{-- Refresh setiap 30 menit --}}
+    {{-- DISPLAY AUTO RELOAD KETIKA ADMIN MENGGANTI KONTEN --}}
+    @php
+        $maxDate = collect([
+            $banners->max('updated_at'),
+            $videos->max('updated_at'),
+            DB::table('runningtexts')->where('active', 1)->where('type', 'tgr')->max('updated_at'),
+        ])
+            ->filter()
+            ->max();
+
+        $initialLast = $maxDate ? \Carbon\Carbon::parse($maxDate)->timestamp : 0;
+
+        $runningTextIds = DB::table('runningtexts')
+            ->where('active', 1)
+            ->where('type', 'tgr')
+            ->orderBy('order')
+            ->pluck('id');
+    @endphp
+
     <script>
-        setInterval(() => {
-            location.reload();
-        }, 30 * 60 * 1000); // 30 menit = 30 x 60 x 1000 ms = 1.800.000 ms
+        let bannerIds = @json($banners->pluck('id'));
+        let videoIds = @json($videos->pluck('id'));
+        let runningTextIds = @json($runningTextIds);
+        let lastUpdate = {{ $initialLast }};
+
+        console.log('Init state:', {
+            bannerIds,
+            videoIds,
+            runningTextIds,
+            lastUpdate
+        });
     </script>
+
+    <script>
+        async function checkForUpdates() {
+            try {
+                const res = await fetch('{{ route('tgr.last-update') }}');
+                if (!res.ok) return;
+
+                const {
+                    banner_ids,
+                    video_ids,
+                    runningtext_ids,
+                    last_update
+                } = await res.json();
+
+                console.log('Polled state:', {
+                    banner_ids,
+                    video_ids,
+                    runningtext_ids,
+                    last_update
+                });
+
+                const sameArray = (a, b) =>
+                    a.length === b.length && a.every((val, idx) => val === b[idx]);
+
+                if (
+                    !sameArray(bannerIds, banner_ids) ||
+                    !sameArray(videoIds, video_ids) ||
+                    !sameArray(runningTextIds, runningtext_ids) ||
+                    last_update !== lastUpdate
+                ) {
+                    console.log('Perubahan konten terdeteksi → reload');
+                    location.reload();
+                }
+            } catch (e) {
+                console.error('Gagal cek update:', e);
+            }
+        }
+
+        // polling tiap 1 detik, mulai setelah 1 detik
+        setTimeout(() => {
+            checkForUpdates();
+            setInterval(checkForUpdates, 1000);
+        }, 1000);
+    </script>
+    {{-- END DISPLAY AUTO RELOAD KETIKA ADMIN MENGGANTI KONTEN --}}
 </body>
 
 </html>

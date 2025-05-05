@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Session;
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class LoginController extends Controller
 {
@@ -22,11 +23,11 @@ class LoginController extends Controller
         ]);
 
         $user = User::where('name', $request->uname)
-            ->where('password', $request->password) // tanpa hash, untuk testing
+            ->where('password', $request->password)
             ->first();
 
         if ($user) {
-            Session::put('loginId', $user->id);
+            Auth::login($user); // <== Ini yang penting
             return redirect()->route('admin.dashboard');
         }
 
@@ -35,7 +36,7 @@ class LoginController extends Controller
 
     public function logout()
     {
-        Session::forget('loginId');
+        Auth::logout();
         return redirect()->route('home');
     }
 }

@@ -50,6 +50,10 @@
             margin-top: 5px;
             width: fit-content;
         }
+
+        .sortable-ghost {
+            border: 2px dashed #696cff;
+        }
     </style>
 @endsection
 
@@ -243,7 +247,7 @@
 
         // URUTAN RUNNING TEXT
         const sortable = new Sortable(document.getElementById('runningtextList'), {
-            animation: 150,
+            animation: 300,
             onUpdate: function(evt) {
                 const itemIds = Array.from(document.querySelectorAll('.runningtext-item')).map(item => item
                     .dataset.id);

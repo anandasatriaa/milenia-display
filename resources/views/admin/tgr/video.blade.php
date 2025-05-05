@@ -36,6 +36,10 @@
             margin-top: 5px;
             width: fit-content;
         }
+
+        .sortable-ghost {
+            border: 2px dashed #696cff;
+        }
     </style>
 @endsection
 
@@ -202,7 +206,7 @@
 
         // URUTAN VIDEO
         const sortable = Sortable.create(document.getElementById('videoList'), {
-            animation: 150,
+            animation: 300,
             onUpdate: function(evt) {
                 const itemIds = Array.from(document.querySelectorAll('.video-item')).map(item => item.dataset
                     .id);

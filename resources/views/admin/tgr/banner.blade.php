@@ -36,6 +36,10 @@
             margin-top: 5px;
             width: fit-content;
         }
+        
+        .sortable-ghost {
+            border: 2px dashed #696cff;
+        }
     </style>
 @endsection
 
@@ -198,7 +202,7 @@
 
         // URUTAN BANNER
         const sortable = Sortable.create(document.getElementById('bannerList'), {
-            animation: 150,
+            animation: 300,
             onUpdate: function(evt) {
                 const itemIds = Array.from(document.querySelectorAll('.banner-item')).map(item => item.dataset
                     .id);

@@ -71,8 +71,10 @@
                                     data-id="{{ $banner->id }}">
                                     <i class="bx bx-power-off"></i>
                                 </button>
-                                <button class="btn btn-primary btn-sm edit-banner" data-id="{{ $banner->id }}"
-                                    data-title="{{ $banner->name }}" data-image="{{ asset('storage/' . $banner->image) }}">
+                                <button class="btn btn-primary btn-sm edit-banner"
+                                    data-url="{{ route('admin.pb.banner.edit', $banner->id) }}"
+                                    data-id="{{ $banner->id }}" data-title="{{ $banner->name }}"
+                                    data-image="{{ asset('storage/' . $banner->image) }}">
                                     <i class="bx bx-edit"></i>
                                 </button>
                                 <button class="btn btn-danger btn-sm delete-banner" data-id="{{ $banner->id }}">
@@ -332,15 +334,16 @@
     {{-- EDIT BANNER --}}
     <script>
         $(document).on('click', '.edit-banner', function() {
-            const bannerId = $(this).data('id');
-            $.get(`/admin/pb/banner/${bannerId}/edit`, function(data) {
-                $('#editBannerId').val(data.id); // Menyimpan ID banner yang diedit
-                $('#editBannerTitle').val(data.name); // Menampilkan judul banner di form
-                $('#editImagePreview').attr('src', `/storage/${data.image}`).removeClass(
-                'd-none'); // Menampilkan preview gambar lama
-                $('#editBannerForm').attr('action',
-                `/admin/pb/banner/${bannerId}`); // Menetapkan URL action form
-                $('#editBannerModal').modal('show'); // Menampilkan modal
+            const url = $(this).data('url');
+            const imageUrl = $(this).data('image');
+
+            $.get(url, function(data) {
+                $('#editBannerId').val(data.id);
+                $('#editBannerTitle').val(data.name);
+
+                $('#editImagePreview').attr('src', imageUrl).removeClass('d-none');
+                $('#editBannerForm').attr('action', url.replace('/edit', ''));
+                $('#editBannerModal').modal('show');
             });
         });
 
@@ -352,7 +355,7 @@
                 const reader = new FileReader();
                 reader.onload = function(e) {
                     $('#editImagePreview').attr('src', e.target
-                    .result); // Ganti preview dengan gambar yang baru dipilih
+                        .result); // Ganti preview dengan gambar yang baru dipilih
                 };
                 reader.readAsDataURL(file); // Membaca file dan menyiapkan gambar untuk ditampilkan
             }
@@ -361,48 +364,49 @@
 
     {{-- DELETE BANNER --}}
     <script>
-    $(document).on('click', '.delete-banner', function () {
-        const bannerId = $(this).data('id');
-        
-        // Konfirmasi dengan SweetAlert
-        Swal.fire({
-            title: 'Are you sure?',
-            text: "This action cannot be undone!",
-            icon: 'warning',
-            showCancelButton: true,
-            confirmButtonText: 'Yes, delete it!',
-            cancelButtonText: 'Cancel',
-            reverseButtons: true
-        }).then((result) => {
-            if (result.isConfirmed) {
-                // Jika konfirmasi di-OK-kan, hapus data
-                let deleteUrl = `{{ route('admin.pb.banner.delete', ':id') }}`.replace(':id', bannerId);
-                $.ajax({
-                    url: deleteUrl,
-                    type: 'DELETE',
-                    data: {
-                        _token: '{{ csrf_token() }}',
-                    },
-                    success: function (response) {
-                        Swal.fire(
-                            'Deleted!',
-                            'The banner has been deleted.',
-                            'success'
-                        );
-                        // Menghapus elemen banner dari halaman setelah dihapus
-                        $(`[data-id="${bannerId}"]`).closest('.banner-item').remove();
-                    },
-                    error: function (xhr, status, error) {
-                        Swal.fire(
-                            'Failed!',
-                            'An error occurred while deleting the banner.',
-                            'error'
-                        );
-                    }
-                });
-            }
+        $(document).on('click', '.delete-banner', function() {
+            const bannerId = $(this).data('id');
+
+            // Konfirmasi dengan SweetAlert
+            Swal.fire({
+                title: 'Are you sure?',
+                text: "This action cannot be undone!",
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonText: 'Yes, delete it!',
+                cancelButtonText: 'Cancel',
+                reverseButtons: true
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    // Jika konfirmasi di-OK-kan, hapus data
+                    let deleteUrl = `{{ route('admin.pb.banner.delete', ':id') }}`.replace(':id',
+                        bannerId);
+                    $.ajax({
+                        url: deleteUrl,
+                        type: 'DELETE',
+                        data: {
+                            _token: '{{ csrf_token() }}',
+                        },
+                        success: function(response) {
+                            Swal.fire(
+                                'Deleted!',
+                                'The banner has been deleted.',
+                                'success'
+                            );
+                            // Menghapus elemen banner dari halaman setelah dihapus
+                            $(`[data-id="${bannerId}"]`).closest('.banner-item').remove();
+                        },
+                        error: function(xhr, status, error) {
+                            Swal.fire(
+                                'Failed!',
+                                'An error occurred while deleting the banner.',
+                                'error'
+                            );
+                        }
+                    });
+                }
+            });
         });
-    });
-</script>
+    </script>
 
 @endsection

@@ -19,6 +19,7 @@
     <title>@yield('title', 'Milenia Display')</title>
 
     <meta name="description" content="" />
+    <meta name="app-url" content="{{ url('/') }}">
 
     <!-- Favicon -->
     <link rel="icon" type="image/x-icon" href="{{ asset('assets/img/favicon/favicon.ico') }}" />

@@ -74,7 +74,8 @@
                                     data-id="{{ $video->id }}">
                                     <i class="bx bx-power-off"></i>
                                 </button>
-                                <button class="btn btn-primary btn-sm edit-video" data-id="{{ $video->id }}"
+                                <button class="btn btn-primary btn-sm edit-video"
+                                    data-url="{{ route('admin.tgr.video.edit', $video->id) }}" data-id="{{ $video->id }}"
                                     data-title="{{ $video->name }}" data-video="{{ asset('storage/' . $video->video) }}">
                                     <i class="bx bx-edit"></i>
                                 </button>
@@ -340,14 +341,18 @@
     {{-- EDIT VIDEO --}}
     <script>
         $(document).on('click', '.edit-video', function() {
-            const videoId = $(this).data('id');
-            $.get(`/admin/pb/video/${videoId}/edit`, function(data) {
+            const url = $(this).data('url');
+            const videoUrl = $(this).data('video');
+
+            $.get(url, function(data) {
                 $('#editVideoId').val(data.id);
                 $('#editVideoTitle').val(data.name);
-                $('#editVideoPreview source').attr('src', `/storage/${data.video}`);
-                const videoElement = document.getElementById('editVideoPreview');
-                videoElement.load(); // <-- ini cara yang benar!
-                $('#editVideoForm').attr('action', `/admin/pb/video/${videoId}`);
+
+                // Gunakan data-video dari tombol untuk preview
+                $('#editVideoPreview source').attr('src', videoUrl);
+                document.getElementById('editVideoPreview').load();
+
+                $('#editVideoForm').attr('action', url.replace('/edit', ''));
                 $('#editVideoModal').modal('show');
             });
         });

@@ -691,12 +691,12 @@
         let runningTextIds = @json($runningTextIds);
         let lastUpdate = {{ $initialLast }};
 
-        console.log('Init state:', {
-            bannerIds,
-            videoIds,
-            runningTextIds,
-            lastUpdate
-        });
+        // console.log('Init state:', {
+        //     bannerIds,
+        //     videoIds,
+        //     runningTextIds,
+        //     lastUpdate
+        // });
     </script>
 
     <script>
@@ -712,12 +712,12 @@
                     last_update
                 } = await res.json();
 
-                console.log('Polled state:', {
-                    banner_ids,
-                    video_ids,
-                    runningtext_ids,
-                    last_update
-                });
+                // console.log('Polled state:', {
+                //     banner_ids,
+                //     video_ids,
+                //     runningtext_ids,
+                //     last_update
+                // });
 
                 const sameArray = (a, b) =>
                     a.length === b.length && a.every((val, idx) => val === b[idx]);

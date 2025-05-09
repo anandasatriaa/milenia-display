@@ -34,30 +34,29 @@ class VideoTGRController extends Controller
 
         // Generate custom ID
         $prefix = 'VDOTGR';
-        $lastId = DB::table('videos') // <- Ubah jika pakai tabel lain, misal: videos
+        // Ambil ID terakhir dengan urutan numerik yang benar
+        $lastId = DB::table('videos')
             ->where('type', 'tgr')
             ->where('id', 'like', "$prefix%")
-            ->orderByDesc('id')
+            ->orderByRaw("CAST(SUBSTRING(id, " . (strlen($prefix) + 1) . ") AS UNSIGNED) DESC")
             ->value('id');
 
-        $nextNumber = 1;
-        if ($lastId) {
-            $lastNumber = (int) str_replace($prefix, '', $lastId);
-            $nextNumber = $lastNumber + 1;
-        }
+        // Tentukan angka berikutnya
+        $lastNumber = $lastId ? (int) substr($lastId, strlen($prefix)) : 0;
+        $nextNumber = $lastNumber + 1;
         $customId = $prefix . $nextNumber;
 
         // Get latest order
-        $lastOrder = DB::table('videos') // <- Ubah jika pakai tabel lain
+        $lastOrder = DB::table('videos')
             ->where('type', 'tgr')
             ->max('order');
         $newOrder = $lastOrder ? $lastOrder + 1 : 1;
 
         // Insert data
-        DB::table('videos')->insert([ // <- Ubah jika pakai tabel `videos`
+        DB::table('videos')->insert([
             'id' => $customId,
             'name' => $request->input('title'),
-            'video' => $videoPath, // <- Ubah ke kolom `video` jika tersedia
+            'video' => $videoPath,
             'active' => 1,
             'order' => $newOrder,
             'type' => 'tgr',

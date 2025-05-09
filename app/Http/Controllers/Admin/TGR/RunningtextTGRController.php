@@ -42,17 +42,16 @@ class RunningtextTGRController extends Controller
 
         // Generate custom ID
         $prefix = 'TXTTGR';
+        // Ambil ID terakhir dengan urutan numerik yang benar
         $lastId = DB::table('runningtexts')
             ->where('type', 'tgr')
             ->where('id', 'like', "$prefix%")
-            ->orderByDesc('id')
+            ->orderByRaw("CAST(SUBSTRING(id, " . (strlen($prefix) + 1) . ") AS UNSIGNED) DESC")
             ->value('id');
 
-        $nextNumber = 1;
-        if ($lastId) {
-            $lastNumber = (int) str_replace($prefix, '', $lastId);
-            $nextNumber = $lastNumber + 1;
-        }
+        // Tentukan angka berikutnya
+        $lastNumber = $lastId ? (int) substr($lastId, strlen($prefix)) : 0;
+        $nextNumber = $lastNumber + 1;
         $customId = $prefix . $nextNumber;
 
         // Get latest order

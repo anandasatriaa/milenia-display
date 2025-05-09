@@ -26,7 +26,7 @@ class BannerTGRController extends Controller
     {
         $request->validate([
             'title' => 'required|string|max:255',
-            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240', // Maksimal 10MB
+            'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:10240',
         ]);
 
         // Upload image
@@ -34,17 +34,16 @@ class BannerTGRController extends Controller
 
         // Generate custom ID
         $prefix = 'BNRTGR';
+
+        // Ambil ID terakhir berdasarkan angka yang diambil dari bagian setelah prefix
         $lastId = DB::table('banners')
             ->where('type', 'tgr')
             ->where('id', 'like', "$prefix%")
-            ->orderByDesc('id')
+            ->orderByRaw("CAST(SUBSTRING(id, " . (strlen($prefix) + 1) . ") AS UNSIGNED) DESC")
             ->value('id');
 
-        $nextNumber = 1;
-        if ($lastId) {
-            $lastNumber = (int) str_replace($prefix, '', $lastId);
-            $nextNumber = $lastNumber + 1;
-        }
+        $lastNumber = $lastId ? (int) substr($lastId, strlen($prefix)) : 0;
+        $nextNumber = $lastNumber + 1;
         $customId = $prefix . $nextNumber;
 
         // Get latest order

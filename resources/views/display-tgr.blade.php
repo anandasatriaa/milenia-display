@@ -492,6 +492,23 @@
         </div>
     </div>
 
+    {{-- CONSOLE MEMORY YANG DIGUNAKAN OLEH JS --}}
+    <script>
+        if (performance && performance.memory) {
+            setInterval(() => {
+                const {
+                    usedJSHeapSize,
+                    totalJSHeapSize,
+                    jsHeapSizeLimit
+                } = performance.memory;
+                console.log(`Heap: ${(usedJSHeapSize/1e6).toFixed(1)}MB / ${(jsHeapSizeLimit/1e6).toFixed(1)}MB`);
+                // Anda juga bisa:
+                // document.getElementById('mem-usage').textContent =
+                //   `${(usedJSHeapSize/1e6).toFixed(1)}MB`;
+            }, 5000);
+        }
+    </script>
+
     {{-- FORMAT WAKTU --}}
     <script>
         function updateTime() {
